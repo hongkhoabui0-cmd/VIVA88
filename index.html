@@ -10,10 +10,9 @@
     .tab-active { border-bottom: 4px solid #f97316; color: white; }
   </style>
 </head>
-<body class="text-white min-h-screen pb-20">
+<body class="text-white min-h-screen">
   <div class="max-w-md mx-auto">
 
-    <!-- Login -->
     <div id="loginScreen" class="p-6">
       <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
       <div class="bg-zinc-900 rounded-3xl p-8">
@@ -27,7 +26,6 @@
       </div>
     </div>
 
-    <!-- Main App -->
     <div id="mainScreen" class="hidden">
       <div class="flex justify-between p-4 bg-zinc-900">
         <h1 class="text-4xl font-bold text-red-500">VIVA88</h1>
@@ -36,7 +34,6 @@
 
       <div id="userInfo" class="bg-zinc-900 p-4 text-center"></div>
 
-      <!-- Tabs -->
       <div class="flex bg-zinc-800">
         <button onclick="showTab(0)" class="flex-1 py-4 tab-active" id="tab0">⚽ Bóng Đá</button>
         <button onclick="showTab(1)" class="flex-1 py-4" id="tab1">🎰 Casino</button>
@@ -58,25 +55,20 @@
       {league:"Premier League Ảo", match:"Man City vs Liverpool", home:1.85, draw:3.6, away:4.1},
       {league:"La Liga Ảo", match:"Real Madrid vs Barcelona", home:2.1, draw:3.4, away:3.2},
       {league:"Bundesliga Ảo", match:"Bayern vs Dortmund", home:1.7, draw:4.0, away:4.5},
-      {league:"Serie A Ảo", match:"Juventus vs Inter", home:2.3, draw:3.2, away:3.0},
-      {league:"V.League Ảo", match:"Hà Nội vs TP.HCM", home:2.2, draw:3.3, away:3.1},
-      {league:"Champions League Ảo", match:"PSG vs Arsenal", home:2.4, draw:3.5, away:2.8}
+      {league:"V.League Ảo", match:"Hà Nội vs TP.HCM", home:2.2, draw:3.3, away:3.1}
     ];
 
     function login() {
-      username = document.getElementById('username').value.trim() || "Khoa";
+      username = document.getElementById('username').value || "Khoa";
       currentRole = document.getElementById('role').value;
-      
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainScreen').classList.remove('hidden');
       
       document.getElementById('userInfo').innerHTML = `
-        <p class="text-green-400">Chào \( {username} ( \){currentRole})</p>
+        <p>Chào \( {username} ( \){currentRole})</p>
         <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${points.toLocaleString('vi-VN')} Điểm</p>
       `;
-
-      if (currentRole === 'admin') showAdminPanel();
-      else showTab(0);
+      showTab(0);
     }
 
     function logout() { location.reload(); }
@@ -86,31 +78,34 @@
     }
 
     function placeBet(odds, selection, match) {
-      const amount = parseInt(prompt(`Cược ${selection} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm cược:`, "1000"));
-      if (!amount || isNaN(amount) || amount <= 0) return alert("❌ Số điểm không hợp lệ!");
-      if (amount > points) return alert("❌ Không đủ điểm!");
+      const amountStr = prompt(`Cược ${selection} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm cược:`, "1000");
+      if (!amountStr) return;
+      
+      const amount = parseInt(amountStr);
+      if (isNaN(amount) || amount <= 0) {
+        alert("❌ Số điểm không hợp lệ!");
+        return;
+      }
+      if (amount > points) {
+        alert("❌ Không đủ điểm!");
+        return;
+      }
 
       points -= amount;
-      const potentialWin = Math.round(amount * odds);
-      history.unshift({
-        time: new Date().toLocaleString('vi-VN'),
-        match: match,
-        selection: selection,
-        amount: amount,
-        potentialWin: potentialWin
-      });
-
+      const winAmount = Math.round(amount * odds);
+      history.unshift({time: new Date().toLocaleString('vi-VN'), match, selection, amount, winAmount});
+      
       updatePoints();
-      alert(`✅ Cược ${selection} thành công!\nNếu thắng nhận ${potentialWin} điểm!`);
+      alert(`✅ Cược ${selection} thành công!\nNếu thắng nhận ${winAmount} điểm!`);
     }
 
     function showTab(tab) {
-      document.querySelectorAll('.tab-active').forEach(el => el.classList.remove('tab-active'));
-      document.getElementById('tab' + tab).classList.add('tab-active');
+      document.querySelectorAll('.tab-active').forEach(t => t.classList.remove('tab-active'));
+      document.getElementById('tab'+tab).classList.add('tab-active');
 
       let html = '';
-      if (tab === 0) { // Bóng Đá
-        html = `<h2 class="text-2xl font-bold mb-6 text-center text-orange-400">Bóng Đá Ảo</h2>`;
+      if (tab === 0) {
+        html = `<h2 class="text-2xl font-bold mb-6 text-center">Bóng Đá Ảo</h2>`;
         matches.forEach(m => {
           html += `
             <div class="bg-zinc-900 p-6 rounded-3xl mb-6">
@@ -129,50 +124,14 @@
       } else if (tab === 2) {
         html = `<h2 class="text-2xl font-bold mb-8 text-center">🐟 BẮN CÁ</h2>
                 <button onclick="playFish()" class="w-full bg-teal-600 py-20 rounded-3xl text-3xl font-bold">BẮT ĐẦU</button>`;
-      } else if (tab === 3) {
-        html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2>`;
-        if (history.length === 0) html += `<p class="text-center text-gray-400">Chưa có vé cược nào</p>`;
-        else history.forEach(h => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
-            <small>${h.time}</small><br>
-            <span>${h.match} - ${h.selection}</span><br>
-            <span class="text-green-400">${h.amount}đ → ${h.potentialWin}đ</span>
-          </div>`;
-        });
+      } else {
+        html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2><p class="text-gray-400">Chưa có dữ liệu</p>`;
       }
       document.getElementById('tabContent').innerHTML = html;
     }
 
-    function playCasino() {
-      if (Math.random() > 0.5) {
-        points += 35000;
-        alert("🎉 THẮNG LỚN +35.000 điểm!");
-      } else {
-        alert("😢 Thua. Thử lại!");
-      }
-      updatePoints();
-    }
-
-    function playFish() {
-      if (Math.random() > 0.4) {
-        points += 45000;
-        alert("🐟 BẮN TRÚNG CÁ LỚN +45.000 điểm!");
-      } else {
-        alert("🐟 Bắn hụt...");
-      }
-      updatePoints();
-    }
-
-    function showAdminPanel() {
-      const html = `
-        <h2 class="text-2xl font-bold mb-6 text-center text-orange-400">👑 Admin Panel - Khoa</h2>
-        <div class="space-y-4">
-          <button onclick="alert('✅ Đã cập nhật tất cả kèo!')" class="w-full bg-violet-600 py-6 rounded-3xl font-bold">Chỉnh sửa Kèo</button>
-          <button onclick="let np = prompt('Nhập số điểm mới:', '100000'); if(np){points=parseInt(np);updatePoints();alert('Đã chỉnh điểm!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
-          <button onclick="alert('📋 Xem tất cả vé cược của thành viên')" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Quản lý Vé Cược</button>
-        </div>`;
-      document.getElementById('tabContent').innerHTML = html;
-    }
+    function playCasino() { alert("Casino đang cập nhật..."); }
+    function playFish() { alert("Bắn Cá đang cập nhật..."); }
   </script>
 </body>
 </html>
