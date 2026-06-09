@@ -7,9 +7,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #0a1428, #1e3a8a); }
+    .tab-active { border-bottom: 4px solid #f97316; }
   </style>
 </head>
-<body class="text-white min-h-screen pb-20">
+<body class="text-white min-h-screen">
   <div class="max-w-md mx-auto">
 
     <!-- Login -->
@@ -37,9 +38,10 @@
 
       <!-- Tabs -->
       <div class="flex bg-zinc-800">
-        <button onclick="showTab(0)" class="flex-1 py-4 tab active" id="tab0">⚽ Bóng Đá</button>
-        <button onclick="showTab(1)" class="flex-1 py-4 tab" id="tab1">🎰 Casino</button>
-        <button onclick="showTab(2)" class="flex-1 py-4 tab" id="tab2">🐟 Bắn Cá</button>
+        <button onclick="showTab(0)" class="flex-1 py-4 tab-active" id="tab0">⚽ Bóng Đá</button>
+        <button onclick="showTab(1)" class="flex-1 py-4" id="tab1">🎰 Casino</button>
+        <button onclick="showTab(2)" class="flex-1 py-4" id="tab2">🐟 Bắn Cá</button>
+        <button onclick="showTab(3)" class="flex-1 py-4" id="tab3">📜 Lịch sử</button>
       </div>
 
       <div id="tabContent" class="p-4"></div>
@@ -72,7 +74,8 @@
         <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${points.toLocaleString('vi-VN')} Điểm</p>
       `;
 
-      showTab(0);
+      if (currentRole === 'admin') showAdminPanel();
+      else showTab(0);
     }
 
     function logout() { location.reload(); }
@@ -87,15 +90,15 @@
 
       points -= amount;
       const potentialWin = Math.round(amount * odds);
-      history.unshift({time: new Date().toLocaleString('vi-VN'), match, selection, amount, potentialWin});
+      history.unshift({time: new Date().toLocaleString('vi-VN'), match, selection, amount, potentialWin, status: "Chưa kết quả"});
       updatePoints();
 
       alert(`✅ Cược ${selection} thành công!\nNếu thắng nhận ${potentialWin} điểm!`);
     }
 
     function showTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('tab' + tab).classList.add('active');
+      document.querySelectorAll('.tab-active').forEach(t => t.classList.remove('tab-active'));
+      document.getElementById('tab' + tab).classList.add('tab-active');
 
       let html = '';
       if (tab === 0) {
@@ -115,9 +118,15 @@
       } else if (tab === 1) {
         html = `<h2 class="text-2xl font-bold mb-8 text-center">🎰 CASINO</h2>
                 <button onclick="playCasino()" class="w-full bg-purple-600 py-20 rounded-3xl text-3xl font-bold">TÀI XỈU</button>`;
-      } else {
+      } else if (tab === 2) {
         html = `<h2 class="text-2xl font-bold mb-8 text-center">🐟 BẮN CÁ</h2>
-                <button onclick="playFish()" class="w-full bg-teal-600 py-20 rounded-3xl text-3xl font-bold">BẮT ĐẦU</button>`;
+                <button onclick="playFish()" class="w-full bg-teal-600 py-20 rounded-3xl text-3xl font-bold">BẮT ĐẦU BẮN CÁ</button>`;
+      } else {
+        html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2>`;
+        if (history.length === 0) html += `<p class="text-center text-gray-400">Chưa có vé cược nào</p>`;
+        else history.forEach(h => {
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3"><small>\( {h.time}</small><br> \){h.match} - ${h.selection} - ${h.amount}đ</div>`;
+        });
       }
       document.getElementById('tabContent').innerHTML = html;
     }
@@ -142,6 +151,14 @@
         alert("🐟 Bắn hụt...");
       }
       updatePoints();
+    }
+
+    function showAdminPanel() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-center">👑 Admin Panel - Khoa</h2>
+        <button onclick="alert('Chỉnh sửa kèo thành công!')" class="w-full bg-violet-600 py-6 rounded-3xl mb-4">Chỉnh tất cả kèo</button>
+        <button onclick="alert('Chỉnh điểm thành viên thành công!')" class="w-full bg-amber-600 py-6 rounded-3xl">Chỉnh điểm tất cả người chơi</button>
+        <button onclick="alert('Xem tất cả vé cược')" class="w-full bg-teal-600 py-6 rounded-3xl">Xem lịch sử cược toàn bộ</button>`;
+      document.getElementById('tabContent').innerHTML = html;
     }
   </script>
 </body>
