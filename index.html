@@ -7,10 +7,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #0a1428, #1e3a8a); }
-    .tab-active { border-bottom: 4px solid #f97316; color: #fff !important; }
+    .tab-active { border-bottom: 4px solid #f97316; color: white; }
   </style>
 </head>
-<body class="text-white min-h-screen">
+<body class="text-white min-h-screen pb-20">
   <div class="max-w-md mx-auto">
 
     <!-- Login -->
@@ -27,9 +27,9 @@
       </div>
     </div>
 
-    <!-- Main -->
+    <!-- Main App -->
     <div id="mainScreen" class="hidden">
-      <div class="flex justify-between p-4 bg-zinc-900 border-b border-orange-500">
+      <div class="flex justify-between p-4 bg-zinc-900">
         <h1 class="text-4xl font-bold text-red-500">VIVA88</h1>
         <button onclick="logout()" class="bg-red-600 px-5 py-2 rounded-2xl">Đăng xuất</button>
       </div>
@@ -37,7 +37,7 @@
       <div id="userInfo" class="bg-zinc-900 p-4 text-center"></div>
 
       <!-- Tabs -->
-      <div class="flex bg-zinc-800 text-sm">
+      <div class="flex bg-zinc-800">
         <button onclick="showTab(0)" class="flex-1 py-4 tab-active" id="tab0">⚽ Bóng Đá</button>
         <button onclick="showTab(1)" class="flex-1 py-4" id="tab1">🎰 Casino</button>
         <button onclick="showTab(2)" class="flex-1 py-4" id="tab2">🐟 Bắn Cá</button>
@@ -64,7 +64,7 @@
     ];
 
     function login() {
-      username = document.getElementById('username').value || "Khoa";
+      username = document.getElementById('username').value.trim() || "Khoa";
       currentRole = document.getElementById('role').value;
       
       document.getElementById('loginScreen').classList.add('hidden');
@@ -86,33 +86,40 @@
     }
 
     function placeBet(odds, selection, match) {
-      const amount = parseInt(prompt(`Cược ${selection} - ${match}\nTỉ lệ ${odds}\nNhập số điểm:`, "1000"));
-      if (!amount || amount > points) return alert("❌ Không đủ điểm!");
+      const amount = parseInt(prompt(`Cược ${selection} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm cược:`, "1000"));
+      if (!amount || isNaN(amount) || amount <= 0) return alert("❌ Số điểm không hợp lệ!");
+      if (amount > points) return alert("❌ Không đủ điểm!");
 
       points -= amount;
       const potentialWin = Math.round(amount * odds);
-      history.unshift({time: new Date().toLocaleString('vi-VN'), match, selection, amount, potentialWin, status: "Chưa kết quả"});
-      updatePoints();
+      history.unshift({
+        time: new Date().toLocaleString('vi-VN'),
+        match: match,
+        selection: selection,
+        amount: amount,
+        potentialWin: potentialWin
+      });
 
+      updatePoints();
       alert(`✅ Cược ${selection} thành công!\nNếu thắng nhận ${potentialWin} điểm!`);
     }
 
     function showTab(tab) {
-      document.querySelectorAll('#tabContent button').forEach(b => b.classList.remove('tab-active'));
+      document.querySelectorAll('.tab-active').forEach(el => el.classList.remove('tab-active'));
       document.getElementById('tab' + tab).classList.add('tab-active');
 
       let html = '';
-      if (tab === 0) {
+      if (tab === 0) { // Bóng Đá
         html = `<h2 class="text-2xl font-bold mb-6 text-center text-orange-400">Bóng Đá Ảo</h2>`;
         matches.forEach(m => {
           html += `
-            <div class="bg-zinc-900 p-6 rounded-3xl mb-6 border border-orange-500">
+            <div class="bg-zinc-900 p-6 rounded-3xl mb-6">
               <p class="text-yellow-400">${m.league}</p>
-              <h3 class="font-bold text-lg">${m.match}</h3>
+              <h3 class="font-bold">${m.match}</h3>
               <div class="grid grid-cols-3 gap-3 mt-4">
-                <button onclick="placeBet(\( {m.home}, 'Thắng', ' \){m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold text-lg">${m.home}</button>
-                <button onclick="placeBet(\( {m.draw}, 'Hòa', ' \){m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold text-lg">${m.draw}</button>
-                <button onclick="placeBet(\( {m.away}, 'Thua', ' \){m.match}')" class="bg-red-600 py-6 rounded-2xl font-bold text-lg">${m.away}</button>
+                <button onclick="placeBet(\( {m.home}, 'Thắng', ' \){m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
+                <button onclick="placeBet(\( {m.draw}, 'Hòa', ' \){m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
+                <button onclick="placeBet(\( {m.away}, 'Thua', ' \){m.match}')" class="bg-red-600 py-6 rounded-2xl font-bold">${m.away}</button>
               </div>
             </div>`;
         });
@@ -124,12 +131,12 @@
                 <button onclick="playFish()" class="w-full bg-teal-600 py-20 rounded-3xl text-3xl font-bold">BẮT ĐẦU</button>`;
       } else if (tab === 3) {
         html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2>`;
-        if (history.length === 0) html += `<p class="text-center text-gray-400">Chưa có vé cược</p>`;
+        if (history.length === 0) html += `<p class="text-center text-gray-400">Chưa có vé cược nào</p>`;
         else history.forEach(h => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 text-sm">
-            <div>${h.time}</div>
-            <div>${h.match} - ${h.selection}</div>
-            <div class="text-green-400">${h.amount}đ → ${h.potentialWin}đ</div>
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
+            <small>${h.time}</small><br>
+            <span>${h.match} - ${h.selection}</span><br>
+            <span class="text-green-400">${h.amount}đ → ${h.potentialWin}đ</span>
           </div>`;
         });
       }
@@ -137,29 +144,36 @@
     }
 
     function playCasino() {
-      const win = Math.random() > 0.5;
-      if (win) { points += 35000; alert("🎉 THẮNG LỚN +35.000 điểm!"); }
-      else alert("😢 Thua. Thử lại!");
+      if (Math.random() > 0.5) {
+        points += 35000;
+        alert("🎉 THẮNG LỚN +35.000 điểm!");
+      } else {
+        alert("😢 Thua. Thử lại!");
+      }
       updatePoints();
     }
 
     function playFish() {
-      const win = Math.random() > 0.4;
-      if (win) { points += 45000; alert("🐟 BẮN TRÚNG CÁ LỚN +45.000 điểm!"); }
-      else alert("🐟 Bắn hụt...");
+      if (Math.random() > 0.4) {
+        points += 45000;
+        alert("🐟 BẮN TRÚNG CÁ LỚN +45.000 điểm!");
+      } else {
+        alert("🐟 Bắn hụt...");
+      }
       updatePoints();
     }
 
     function showAdminPanel() {
-      let html = `
+      const html = `
         <h2 class="text-2xl font-bold mb-6 text-center text-orange-400">👑 Admin Panel - Khoa</h2>
         <div class="space-y-4">
-          <button onclick="alert('✅ Đã chỉnh sửa tất cả kèo thành công!')" class="w-full bg-violet-600 py-6 rounded-3xl font-bold">Chỉnh sửa Kèo</button>
-          <button onclick="let newPoints = prompt('Nhập số điểm mới cho thành viên:', '100000'); if(newPoints) {points = parseInt(newPoints); updatePoints(); alert('Đã chỉnh điểm!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
-          <button onclick="alert('📋 Đang xem tất cả vé cược...')" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Quản lý Vé Cược</button>
+          <button onclick="alert('✅ Đã cập nhật tất cả kèo!')" class="w-full bg-violet-600 py-6 rounded-3xl font-bold">Chỉnh sửa Kèo</button>
+          <button onclick="let np = prompt('Nhập số điểm mới:', '100000'); if(np){points=parseInt(np);updatePoints();alert('Đã chỉnh điểm!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
+          <button onclick="alert('📋 Xem tất cả vé cược của thành viên')" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Quản lý Vé Cược</button>
         </div>`;
       document.getElementById('tabContent').innerHTML = html;
     }
   </script>
 </body>
 </html>
+cuon tron go commit sessage:update full stable version
