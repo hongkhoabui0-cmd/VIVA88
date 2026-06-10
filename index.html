@@ -28,11 +28,6 @@
 
       <div id="userInfo" class="bg-zinc-900 p-4 text-center"></div>
 
-      <div class="flex bg-zinc-800">
-        <button onclick="showTab(0)" class="flex-1 py-4 tab-active" id="tab0">⚽ Bóng Đá</button>
-        <button onclick="showTab(3)" class="flex-1 py-4" id="tab3">📜 Lịch sử</button>
-      </div>
-
       <div id="tabContent" class="p-4"></div>
     </div>
   </div>
@@ -43,9 +38,7 @@
 
     const matches = [
       {match: "Man City vs Liverpool", home:1.85, draw:3.6, away:4.1},
-      {match: "Real Madrid vs Barcelona", home:2.1, draw:3.4, away:3.2},
-      {match: "Bayern vs Dortmund", home:1.7, draw:4.0, away:4.5},
-      {match: "Hà Nội vs TP.HCM", home:2.2, draw:3.3, away:3.1}
+      {match: "Real Madrid vs Barcelona", home:2.1, draw:3.4, away:3.2}
     ];
 
     function login() {
@@ -56,8 +49,12 @@
         <p class="text-green-400">Chào Khoa (${role})</p>
         <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${points.toLocaleString('vi-VN')} Điểm</p>
       `;
-      if (role === 'admin') showAdmin();
-      else showFootball();
+
+      if (role === 'admin') {
+        showAdminPanel();
+      } else {
+        showFootball();
+      }
     }
 
     function logout() { location.reload(); }
@@ -74,7 +71,7 @@
       const win = Math.round(amount * odds);
       history.unshift({time: new Date().toLocaleString('vi-VN'), match, choice, amount, win});
       updatePoints();
-      alert(`✅ Cược ${choice} thành công!\nNếu thắng nhận ${win} điểm!`);
+      alert(`✅ Cược ${choice} thành công!`);
     }
 
     function showFootball() {
@@ -93,10 +90,10 @@
       document.getElementById('tabContent').innerHTML = html;
     }
 
-    function showAdmin() {
+    function showAdminPanel() {
       let html = `
         <h2 class="text-2xl font-bold mb-6 text-center text-orange-400">👑 Admin Panel - Khoa</h2>
-        <button onclick="let np = prompt('Nhập số điểm mới cho thành viên:', '100000'); if(np){points = parseInt(np); updatePoints(); alert('Chỉnh điểm thành công!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold mb-4">Chỉnh Điểm Thành Viên</button>
+        <button onclick="let np = prompt('Nhập số điểm mới:', '100000'); if(np){points = parseInt(np); updatePoints(); alert('Chỉnh điểm thành công!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold mb-4">Chỉnh Điểm Thành Viên</button>
         <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>`;
       document.getElementById('tabContent').innerHTML = html;
     }
@@ -105,11 +102,7 @@
       let html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2>`;
       if (history.length === 0) html += `<p class="text-gray-400 text-center">Chưa có vé cược</p>`;
       else history.forEach(h => {
-        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
-          ${h.time}<br>
-          ${h.match} - ${h.choice}<br>
-          <span class="text-green-400">${h.amount}đ → ${h.win}đ</span>
-        </div>`;
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${h.time} - ${h.match} - ${h.choice}</div>`;
       });
       document.getElementById('tabContent').innerHTML = html;
     }
