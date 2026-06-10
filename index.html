@@ -92,12 +92,11 @@
     }
 
     function showAdmin() {
-      let html = `
-        <h2 class="text-2xl font-bold mb-6 text-center text-orange-400">👑 Admin Panel - Khoa</h2>
+      let html = `<h2 class="text-2xl font-bold mb-6 text-center text-orange-400">👑 Admin Panel - Khoa</h2>
         <div class="space-y-4">
           <button onclick="alert('Đã chỉnh kèo thành công!')" class="w-full bg-violet-600 py-6 rounded-3xl font-bold">Chỉnh Kèo</button>
-          <button onclick="let np=prompt('Nhập điểm mới:', '100000'); if(np){points=parseInt(np);updatePoints();alert('Chỉnh điểm thành công!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
-          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Lịch Sử Cược</button>
+          <button onclick="let np = prompt('Nhập điểm mới cho thành viên:', '100000'); if(np){points = parseInt(np); updatePoints(); alert('Chỉnh điểm thành công!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
         </div>`;
       document.getElementById('content').innerHTML = html;
     }
