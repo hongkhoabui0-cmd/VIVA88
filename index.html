@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -31,7 +30,7 @@
         <p class="text-3xl font-bold text-yellow-400" id="points">50.000 Điểm</p>
       </div>
 
-      <div id="content"></div>
+      <div id="content" class="space-y-6"></div>
     </div>
   </div>
 
@@ -54,7 +53,7 @@
       document.getElementById('app').classList.remove('hidden');
       document.getElementById('greeting').innerHTML = `Chào \( {name} ( \){role})`;
       updatePoints();
-      if (role === 'admin') showAdminPanel();
+      if (role === 'admin') showAdmin();
       else showFootball();
     }
 
@@ -63,7 +62,7 @@
     }
 
     function bet(odds, choice, match) {
-      const amount = prompt(`Cược ${choice} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm:`, "1000");
+      const amount = prompt(`Cược ${choice} - ${match}\nTỉ lệ ${odds}\nNhập số điểm:`, "1000");
       if (!amount) return;
       const betAmount = parseInt(amount);
       if (isNaN(betAmount) || betAmount <= 0) return alert("❌ Số điểm không hợp lệ!");
@@ -80,9 +79,9 @@
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Bóng Đá Ảo</h2>`;
       matches.forEach(m => {
         html += `
-          <div class="bg-zinc-900 rounded-3xl p-6 mb-6">
-            <h3 class="font-bold mb-3">${m.match}</h3>
-            <div class="grid grid-cols-3 gap-4">
+          <div class="bg-zinc-900 rounded-3xl p-6">
+            <h3 class="font-bold">${m.match}</h3>
+            <div class="grid grid-cols-3 gap-4 mt-4">
               <button onclick="bet(\( {m.home}, 'Thắng', ' \){m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
               <button onclick="bet(\( {m.draw}, 'Hòa', ' \){m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
               <button onclick="bet(\( {m.away}, 'Thua', ' \){m.match}')" class="bg-red-600 py-6 rounded-2xl font-bold">${m.away}</button>
@@ -92,25 +91,25 @@
       document.getElementById('content').innerHTML = html;
     }
 
-    function showAdminPanel() {
+    function showAdmin() {
       let html = `
-        <h2 class="text-2xl font-bold mb-6 text-orange-400 text-center">👑 Admin Panel - Khoa</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center text-orange-400">👑 Admin Panel - Khoa</h2>
         <div class="space-y-4">
-          <button onclick="alert('Đã cập nhật nhiều kèo mới!')" class="w-full bg-violet-600 py-6 rounded-3xl font-bold">Chỉnh sửa Kèo</button>
-          <button onclick="let np = prompt('Nhập số điểm mới cho thành viên:', '100000'); if(np){points = parseInt(np); updatePoints(); alert('Đã chỉnh điểm thành công!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
-          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
+          <button onclick="alert('Đã chỉnh kèo thành công!')" class="w-full bg-violet-600 py-6 rounded-3xl font-bold">Chỉnh Kèo</button>
+          <button onclick="let np=prompt('Nhập điểm mới:', '100000'); if(np){points=parseInt(np);updatePoints();alert('Chỉnh điểm thành công!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Lịch Sử Cược</button>
         </div>`;
       document.getElementById('content').innerHTML = html;
     }
 
     function showHistory() {
       let html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2>`;
-      if (history.length === 0) html += `<p class="text-gray-400">Chưa có vé cược</p>`;
+      if (history.length === 0) html += `<p class="text-gray-400 text-center">Chưa có vé cược</p>`;
       else history.forEach(h => {
-        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 text-sm">
-          <div>${h.time}</div>
-          <div>${h.match} - ${h.choice}</div>
-          <div class="text-green-400">${h.amount}đ → ${h.win}đ</div>
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
+          <small>${h.time}</small><br>
+          ${h.match} - ${h.choice}<br>
+          <span class="text-green-400">${h.amount}đ → ${h.win}đ</span>
         </div>`;
       });
       document.getElementById('content').innerHTML = html;
