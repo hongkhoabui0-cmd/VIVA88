@@ -21,12 +21,12 @@
     </div>
 
     <div id="mainScreen" class="hidden">
-      <div class="flex justify-between p-4 bg-zinc-900">
+      <div class="flex justify-between items-center p-4 bg-zinc-900 rounded-t-3xl">
         <h1 class="text-4xl font-bold text-red-500">VIVA88</h1>
-        <button onclick="logout()" class="bg-red-600 px-5 py-2 rounded-2xl">Đăng xuất</button>
+        <button onclick="logout()" class="bg-red-600 px-6 py-3 rounded-2xl font-bold">Đăng xuất</button>
       </div>
 
-      <div id="userInfo" class="bg-zinc-900 p-4 text-center"></div>
+      <div id="userInfo" class="bg-zinc-900 p-4 text-center border-b border-zinc-700"></div>
       <div id="tabContent" class="p-4"></div>
     </div>
   </div>
@@ -39,6 +39,7 @@
       const role = document.getElementById('role').value;
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainScreen').classList.remove('hidden');
+      
       document.getElementById('userInfo').innerHTML = `
         <p class="text-green-400">Chào Khoa (${role})</p>
         <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${points.toLocaleString('vi-VN')} Điểm</p>
@@ -55,35 +56,146 @@
       document.getElementById('pointsDisplay').textContent = points.toLocaleString('vi-VN') + " Điểm";
     }
 
+    // Mock API - Tự động thay đổi kèo
+    function getMatches() {
+      return [
+        {match: "Man City vs Liverpool", home: (1.7 + Math.random()).toFixed(2), draw: (3.4 + Math.random()).toFixed(2), away: (4.0 + Math.random()).toFixed(2)},
+        {match: "Real Madrid vs Barcelona", home: (2.0 + Math.random()).toFixed(2), draw: (3.3 + Math.random()).toFixed(2), away: (3.1 + Math.random()).toFixed(2)},
+        {match: "Hà Nội vs TP.HCM", home: (2.1 + Math.random()).toFixed(2), draw: (3.2 + Math.random()).toFixed(2), away: (3.0 + Math.random()).toFixed(2)}
+      ];
+    }
+
     function bet(odds, choice) {
-      const amount = parseInt(prompt(`Cược ${choice}\nTỉ lệ ${odds}\nNhập số điểm:`, "1000"));
+      const amount = parseInt(prompt(`Cược ${choice}\nTỉ lệ: ${odds}\nNhập số điểm:`, "1000"));
       if (!amount || isNaN(amount) || amount <= 0) return alert("❌ Số điểm không hợp lệ!");
       if (amount > points) return alert("❌ Không đủ điểm!");
 
       points -= amount;
       updatePoints();
-      alert(`✅ Cược ${choice} ${amount} điểm thành công!`);
+
+      const winChance = Math.random();
+      if (winChance > 0.48) {
+        const winAmount = Math.round(amount * parseFloat(odds));
+        points += winAmount;
+        updatePoints();
+        alert(`🎉 THẮNG! +${winAmount} điểm`);
+      } else {
+        alert("😢 Thua. Thử lại lần sau!");
+      }
+      
+      history.unshift({
+        time: new Date().toLocaleTimeString('vi-VN'),
+        bet: `${choice} \( {amount}đ ( \){odds})`,
+        result: winChance > 0.48 ? "Thắng" : "Thua"
+      });
     }
 
     function showPlayer() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Bóng Đá Ảo</h2>
-        <div class="bg-zinc-900 p-6 rounded-3xl">
-          <h3 class="font-bold mb-4">Man City vs Liverpool</h3>
-          <div class="grid grid-cols-3 gap-4">
-            <button onclick="bet(1.85, 'Thắng')" class="bg-green-600 py-8 rounded-2xl font-bold">1.85</button>
-            <button onclick="bet(3.6, 'Hòa')" class="bg-yellow-600 py-8 rounded-2xl font-bold">3.60</button>
-            <button onclick="bet(4.1, 'Thua')" class="bg-red-600 py-8 rounded-2xl font-bold">4.10</button>
-          </div>
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">🎮 Thành Viên - Chơi Ngay</h2>`;
+      
+      // Bóng Đá
+      html += `<h3 class="font-bold mb-3">⚽ Bóng Đá Ảo (API Mock)</h3>`;
+      getMatches().forEach(m => {
+        html += `
+          <div class="bg-zinc-900 p-5 rounded-3xl mb-6">
+            <h4 class="font-bold mb-3">${m.match}</h4>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="bet(\( {m.home}, 'Thắng')" class="bg-green-600 py-6 rounded-2xl font-bold"> \){m.home}</button>
+              <button onclick="bet(\( {m.draw}, 'Hòa')" class="bg-yellow-600 py-6 rounded-2xl font-bold"> \){m.draw}</button>
+              <button onclick="bet(\( {m.away}, 'Thua')" class="bg-red-600 py-6 rounded-2xl font-bold"> \){m.away}</button>
+            </div>
+          </div>`;
+      });
+
+      // Tài Xỉu
+      html += `<h3 class="font-bold mb-3 mt-8">🎲 Tài Xỉu</h3>
+        <div class="bg-zinc-900 p-6 rounded-3xl mb-6 text-center">
+          <button onclick="playTaiXiu()" class="w-full bg-purple-600 py-8 rounded-3xl font-bold text-xl">Chơi Tài Xỉu (cược 5000)</button>
         </div>`;
+
+      // Bắn Cá
+      html += `<h3 class="font-bold mb-3">🐟 Bắn Cá</h3>
+        <div class="bg-zinc-900 p-6 rounded-3xl text-center">
+          <button onclick="playBanCa()" class="w-full bg-cyan-600 py-8 rounded-3xl font-bold text-xl">Bắn Cá (cược 3000)</button>
+        </div>`;
+
       document.getElementById('tabContent').innerHTML = html;
     }
 
+    function playTaiXiu() {
+      if (points < 5000) return alert("Không đủ điểm!");
+      points -= 5000;
+      updatePoints();
+      const result = Math.random() > 0.5 ? "Tài" : "Xỉu";
+      const win = Math.random() > 0.5;
+      if (win) {
+        points += 10000;
+        updatePoints();
+        alert(`🎉 ${result} - THẮNG +10.000 điểm!`);
+      } else {
+        alert(`😢 ${result} - Thua`);
+      }
+      history.unshift({time: new Date().toLocaleTimeString('vi-VN'), bet: "Tài Xỉu 5000", result: win ? "Thắng" : "Thua"});
+    }
+
+    function playBanCa() {
+      if (points < 3000) return alert("Không đủ điểm!");
+      points -= 3000;
+      updatePoints();
+      if (Math.random() > 0.45) {
+        points += 15000;
+        updatePoints();
+        alert("🎉 BẮN TRÚNG CÁ LỚN +15.000 điểm!");
+      } else {
+        alert("🐟 Bắn hụt... Thử lại!");
+      }
+      history.unshift({time: new Date().toLocaleTimeString('vi-VN'), bet: "Bắn Cá 3000", result: "Thắng"});
+    }
+
     function showAgent() {
-      document.getElementById('tabContent').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2><p class="text-center">Chức năng Đại lý đang phát triển</p>`;
+      document.getElementById('tabContent').innerHTML = `
+        <h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
+        <div class="space-y-4">
+          <button onclick="agentAction('bơm')" class="w-full bg-orange-600 py-6 rounded-3xl font-bold">Bơm điểm cho thành viên</button>
+          <button onclick="agentAction('rút')" class="w-full bg-red-600 py-6 rounded-3xl font-bold">Rút điểm thành viên</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
+        </div>`;
     }
 
     function showAdmin() {
-      document.getElementById('tabContent').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel</h2><p class="text-center">Chức năng Admin đang phát triển</p>`;
+      document.getElementById('tabContent').innerHTML = `
+        <h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel - Khoa</h2>
+        <div class="space-y-4">
+          <button onclick="adminAction('chinhdiem')" class="w-full bg-orange-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
+          <button onclick="adminAction('chinhve')" class="w-full bg-purple-600 py-6 rounded-3xl font-bold">Chỉnh Sửa Vé Cược</button>
+          <button onclick="adminAction('quanly')" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Quản Lý Đại Lý</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
+        </div>`;
+    }
+
+    function agentAction(type) {
+      const amount = parseInt(prompt(type === 'bơm' ? "Nhập điểm BƠM:" : "Nhập điểm RÚT:", "10000"));
+      if (amount > 0) alert(`✅ ${type.toUpperCase()} ${amount.toLocaleString('vi-VN')} điểm thành công!`);
+    }
+
+    function adminAction(type) {
+      if (type === 'chinhdiem') {
+        const amount = parseInt(prompt("Nhập điểm mới:", "100000"));
+        if (amount > 0) { points = amount; updatePoints(); alert("✅ Chỉnh điểm thành công!"); }
+      } else if (type === 'chinhve') {
+        alert("✅ Đã chỉnh sửa vé cược theo yêu cầu!");
+      } else {
+        alert("✅ Quản lý Đại Lý thành công (mock)!");
+      }
+    }
+
+    function showHistory() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📜 Lịch Sử Cược</h2>`;
+      if (history.length === 0) html += `<p class="text-center text-zinc-400">Chưa có lịch sử cược</p>`;
+      else history.forEach(h => {
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 text-sm"><span class="text-zinc-400">\( {h.time}</span><br> \){h.bet} → <strong class="\( {h.result==='Thắng'?'text-green-400':'text-red-400'}"> \){h.result}</strong></div>`;
+      });
+      document.getElementById('tabContent').innerHTML = html;
     }
   </script>
 </body>
