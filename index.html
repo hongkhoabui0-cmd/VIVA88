@@ -8,42 +8,30 @@
 </head>
 <body class="bg-zinc-950 text-white min-h-screen p-4">
   <div class="max-w-md mx-auto">
-
     <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
 
-    <!-- Login đơn giản -->
-    <div id="login" class="bg-zinc-900 rounded-3xl p-6 mb-6">
-      <input id="user" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
-      <select id="roleSelect" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
-        <option value="player">Thành viên</option>
-        <option value="agent">Đại lý</option>
-        <option value="admin">Admin (Khoa)</option>
-      </select>
-      <button onclick="startApp()" class="w-full bg-green-600 py-5 rounded-3xl font-bold">Vào Website</button>
+    <div class="bg-zinc-900 rounded-3xl p-6 mb-6">
+      <input id="user" placeholder="Tên đăng nhập (mặc định: Khoa)" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
+      <button onclick="start()" class="w-full bg-green-600 py-5 rounded-3xl font-bold text-xl">Vào Website</button>
     </div>
 
     <div id="app" class="hidden">
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex justify-between mb-6">
         <h2 id="greeting" class="text-xl font-bold"></h2>
-        <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded-2xl text-sm">Đăng xuất</button>
+        <button onclick="location.reload()" class="bg-red-600 px-4 py-2 rounded-xl">Đăng xuất</button>
       </div>
 
-      <div class="bg-zinc-900 rounded-3xl p-5 mb-6 text-center">
-        <p class="text-yellow-400 text-3xl font-bold" id="points">50.000 Điểm</p>
+      <div class="bg-zinc-900 rounded-3xl p-6 mb-6 text-center">
+        <p class="text-3xl font-bold text-yellow-400" id="points">50.000 Điểm</p>
       </div>
 
-      <!-- Bóng Đá -->
-      <div class="bg-zinc-900 rounded-3xl p-6 mb-6">
-        <h3 class="font-bold text-orange-400 mb-4">Man City vs Liverpool</h3>
+      <div class="bg-zinc-900 rounded-3xl p-6">
+        <h3 class="font-bold mb-4 text-orange-400">Man City vs Liverpool</h3>
         <div class="grid grid-cols-3 gap-4">
-          <button onclick="bet(1.85, 'Thắng')" class="bg-green-600 py-8 rounded-2xl font-bold text-xl">1.85</button>
-          <button onclick="bet(3.6, 'Hòa')" class="bg-yellow-600 py-8 rounded-2xl font-bold text-xl">3.60</button>
-          <button onclick="bet(4.1, 'Thua')" class="bg-red-600 py-8 rounded-2xl font-bold text-xl">4.10</button>
+          <button onclick="bet(1.85, 'Thắng')" class="bg-green-600 py-8 rounded-2xl font-bold">1.85</button>
+          <button onclick="bet(3.6, 'Hòa')" class="bg-yellow-600 py-8 rounded-2xl font-bold">3.60</button>
+          <button onclick="bet(4.1, 'Thua')" class="bg-red-600 py-8 rounded-2xl font-bold">4.10</button>
         </div>
-      </div>
-
-      <div class="text-center text-sm text-gray-400">
-        Nhấn vào nút tỉ lệ để đặt cược
       </div>
     </div>
   </div>
@@ -51,40 +39,22 @@
   <script>
     let points = 50000;
 
-    function startApp() {
-      const name = document.getElementById('user').value || "Khoa";
-      const role = document.getElementById('roleSelect').value;
-      
-      document.getElementById('login').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-      
-      document.getElementById('greeting').innerHTML = `Chào \( {name} ( \){role})`;
+    function start() {
+      document.querySelector('#app').classList.remove('hidden');
+      document.getElementById('greeting').innerHTML = 'Chào Khoa';
       document.getElementById('points').textContent = points.toLocaleString('vi-VN') + " Điểm";
     }
 
     function bet(odds, choice) {
-      const amount = prompt(`Cược ${choice} - Tỉ lệ ${odds}\nNhập số điểm muốn cược:`, "1000");
+      const amount = prompt(`Cược ${choice} - Tỉ lệ ${odds}\nNhập số điểm:`, "1000");
       if (!amount) return;
-
       const betAmount = parseInt(amount);
-      if (isNaN(betAmount) || betAmount <= 0) {
-        alert("❌ Số điểm không hợp lệ!");
-        return;
-      }
-      if (betAmount > points) {
-        alert("❌ Không đủ điểm!");
-        return;
-      }
+      if (isNaN(betAmount) || betAmount <= 0) return alert("Số điểm không hợp lệ!");
+      if (betAmount > points) return alert("Không đủ điểm!");
 
       points -= betAmount;
       document.getElementById('points').textContent = points.toLocaleString('vi-VN') + " Điểm";
-
-      const win = Math.round(betAmount * odds);
-      alert(`✅ Đã đặt cược ${choice} ${betAmount} điểm!\nNếu thắng nhận ${win} điểm!`);
-    }
-
-    function logout() {
-      location.reload();
+      alert(`✅ Cược ${choice} thành công!`);
     }
   </script>
 </body>
