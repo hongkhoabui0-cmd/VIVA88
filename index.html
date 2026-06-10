@@ -11,12 +11,17 @@
     <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
 
     <div id="login" class="bg-zinc-900 rounded-3xl p-6 mb-6">
-      <input id="user" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black" value="Khoa">
+      <input id="user" value="Khoa" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
+      <select id="role" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
+        <option value="player">Thành viên</option>
+        <option value="agent">Đại lý</option>
+        <option value="admin">Admin (Khoa)</option>
+      </select>
       <button onclick="startApp()" class="w-full bg-green-600 py-5 rounded-3xl font-bold text-xl">Vào Website</button>
     </div>
 
     <div id="app" class="hidden">
-      <div class="flex justify-between mb-4">
+      <div class="flex justify-between mb-6">
         <h2 id="greeting" class="text-xl font-bold"></h2>
         <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded-2xl">Đăng xuất</button>
       </div>
@@ -25,8 +30,7 @@
         <p class="text-3xl font-bold text-yellow-400" id="points">50.000 Điểm</p>
       </div>
 
-      <!-- Bóng Đá -->
-      <div id="football" class="space-y-6"></div>
+      <div id="content"></div>
     </div>
   </div>
 
@@ -42,9 +46,11 @@
     ];
 
     function startApp() {
+      const name = document.getElementById('user').value || "Khoa";
+      const role = document.getElementById('role').value;
       document.getElementById('login').classList.add('hidden');
       document.getElementById('app').classList.remove('hidden');
-      document.getElementById('greeting').textContent = `Chào Khoa`;
+      document.getElementById('greeting').innerHTML = `Chào \( {name} ( \){role})`;
       updatePoints();
       renderMatches();
     }
@@ -54,7 +60,7 @@
     }
 
     function bet(odds, choice, match) {
-      const amount = prompt(`Cược ${choice} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm:`, "1000");
+      const amount = prompt(`Cược ${choice} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm cược:`, "1000");
       if (!amount) return;
       const betAmount = parseInt(amount);
       if (isNaN(betAmount) || betAmount <= 0) return alert("❌ Số điểm không hợp lệ!");
@@ -64,15 +70,15 @@
       const win = Math.round(betAmount * odds);
       history.unshift({time: new Date().toLocaleString('vi-VN'), match, choice, amount: betAmount, win});
       updatePoints();
-      alert(`✅ Cược ${choice} thành công!\nNếu thắng nhận ${win} điểm!`);
+      alert(`✅ Cược ${choice} ${betAmount} điểm thành công!\nNếu thắng nhận ${win} điểm!`);
     }
 
     function renderMatches() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Bóng Đá Ảo</h2>`;
       matches.forEach(m => {
         html += `
-          <div class="bg-zinc-900 rounded-3xl p-6">
-            <h3 class="font-bold mb-4">${m.match}</h3>
+          <div class="bg-zinc-900 rounded-3xl p-6 mb-6">
+            <h3 class="font-bold mb-3">${m.match}</h3>
             <div class="grid grid-cols-3 gap-4">
               <button onclick="bet(\( {m.home}, 'Thắng', ' \){m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
               <button onclick="bet(\( {m.draw}, 'Hòa', ' \){m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
@@ -80,7 +86,7 @@
             </div>
           </div>`;
       });
-      document.getElementById('football').innerHTML = html;
+      document.getElementById('content').innerHTML = html;
     }
 
     function logout() { location.reload(); }
