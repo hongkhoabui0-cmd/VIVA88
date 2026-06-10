@@ -10,111 +10,43 @@
   <div class="max-w-md mx-auto">
     <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
 
-    <div id="login" class="bg-zinc-900 rounded-3xl p-6 mb-6">
-      <input id="user" value="Khoa" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
-      <select id="role" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
-        <option value="player">Thành viên</option>
-        <option value="agent">Đại lý</option>
-        <option value="admin">Admin (Khoa)</option>
-      </select>
-      <button onclick="startApp()" class="w-full bg-green-600 py-5 rounded-3xl font-bold text-xl">Vào Website</button>
-    </div>
-
-    <div id="app" class="hidden">
-      <div class="flex justify-between mb-6">
-        <h2 id="greeting" class="text-xl font-bold"></h2>
-        <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded-2xl">Đăng xuất</button>
+    <div class="bg-zinc-900 rounded-3xl p-6">
+      <h2 class="text-2xl font-bold mb-6 text-center">Man City vs Liverpool</h2>
+      
+      <div class="grid grid-cols-3 gap-4">
+        <button onclick="cuoc(1.85, 'Thắng')" class="bg-green-600 py-10 rounded-2xl font-bold text-2xl">1.85</button>
+        <button onclick="cuoc(3.6, 'Hòa')" class="bg-yellow-600 py-10 rounded-2xl font-bold text-2xl">3.60</button>
+        <button onclick="cuoc(4.1, 'Thua')" class="bg-red-600 py-10 rounded-2xl font-bold text-2xl">4.10</button>
       </div>
 
-      <div class="bg-zinc-900 rounded-3xl p-5 mb-6 text-center">
-        <p class="text-3xl font-bold text-yellow-400" id="points">50.000 Điểm</p>
+      <div class="mt-8 text-center">
+        <p class="text-3xl font-bold text-yellow-400" id="diem">50.000 Điểm</p>
       </div>
-
-      <div id="content" class="space-y-6"></div>
     </div>
   </div>
 
   <script>
-    let points = 50000;
-    let history = [];
+    let diem = 50000;
 
-    const matches = [
-      {match: "Man City vs Liverpool", home:1.85, draw:3.6, away:4.1},
-      {match: "Real Madrid vs Barcelona", home:2.1, draw:3.4, away:3.2},
-      {match: "Bayern vs Dortmund", home:1.7, draw:4.0, away:4.5},
-      {match: "Hà Nội vs TP.HCM", home:2.2, draw:3.3, away:3.1},
-      {match: "PSG vs Arsenal", home:2.4, draw:3.5, away:2.8}
-    ];
+    function cuoc(tyle, ketqua) {
+      const input = prompt(`Cược ${ketqua} - Tỉ lệ ${tyle}\nNhập số điểm cược:`, "1000");
+      if (input === null) return;
 
-    function startApp() {
-      const name = document.getElementById('user').value || "Khoa";
-      const role = document.getElementById('role').value;
-      document.getElementById('login').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-      document.getElementById('greeting').innerHTML = `Chào \( {name} ( \){role})`;
-      updatePoints();
-      if (role === 'admin') showAdmin();
-      else showFootball();
+      const soTien = parseInt(input);
+      if (isNaN(soTien) || soTien <= 0) {
+        alert("❌ Số điểm không hợp lệ!");
+        return;
+      }
+      if (soTien > diem) {
+        alert("❌ Không đủ điểm!");
+        return;
+      }
+
+      diem -= soTien;
+      document.getElementById("diem").textContent = diem.toLocaleString('vi-VN') + " Điểm";
+
+      alert(`✅ Cược ${ketqua} ${soTien} điểm thành công!`);
     }
-
-    function updatePoints() {
-      document.getElementById('points').textContent = points.toLocaleString('vi-VN') + " Điểm";
-    }
-
-    function bet(odds, choice, match) {
-      const amount = prompt(`Cược ${choice} - ${match}\nTỉ lệ ${odds}\nNhập số điểm:`, "1000");
-      if (!amount) return;
-      const betAmount = parseInt(amount);
-      if (isNaN(betAmount) || betAmount <= 0) return alert("❌ Số điểm không hợp lệ!");
-      if (betAmount > points) return alert("❌ Không đủ điểm!");
-
-      points -= betAmount;
-      const win = Math.round(betAmount * odds);
-      history.unshift({time: new Date().toLocaleString('vi-VN'), match, choice, amount: betAmount, win});
-      updatePoints();
-      alert(`✅ Cược ${choice} thành công!\nNếu thắng nhận ${win} điểm!`);
-    }
-
-    function showFootball() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Bóng Đá Ảo</h2>`;
-      matches.forEach(m => {
-        html += `
-          <div class="bg-zinc-900 rounded-3xl p-6">
-            <h3 class="font-bold">${m.match}</h3>
-            <div class="grid grid-cols-3 gap-4 mt-4">
-              <button onclick="bet(\( {m.home}, 'Thắng', ' \){m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
-              <button onclick="bet(\( {m.draw}, 'Hòa', ' \){m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
-              <button onclick="bet(\( {m.away}, 'Thua', ' \){m.match}')" class="bg-red-600 py-6 rounded-2xl font-bold">${m.away}</button>
-            </div>
-          </div>`;
-      });
-      document.getElementById('content').innerHTML = html;
-    }
-
-    function showAdmin() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-center text-orange-400">👑 Admin Panel - Khoa</h2>
-        <div class="space-y-4">
-          <button onclick="alert('Đã chỉnh kèo thành công!')" class="w-full bg-violet-600 py-6 rounded-3xl font-bold">Chỉnh Kèo</button>
-          <button onclick="let np = prompt('Nhập điểm mới cho thành viên:', '100000'); if(np){points = parseInt(np); updatePoints(); alert('Chỉnh điểm thành công!');}" class="w-full bg-amber-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên</button>
-          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
-        </div>`;
-      document.getElementById('content').innerHTML = html;
-    }
-
-    function showHistory() {
-      let html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2>`;
-      if (history.length === 0) html += `<p class="text-gray-400 text-center">Chưa có vé cược</p>`;
-      else history.forEach(h => {
-        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
-          <small>${h.time}</small><br>
-          ${h.match} - ${h.choice}<br>
-          <span class="text-green-400">${h.amount}đ → ${h.win}đ</span>
-        </div>`;
-      });
-      document.getElementById('content').innerHTML = html;
-    }
-
-    function logout() { location.reload(); }
   </script>
 </body>
 </html>
