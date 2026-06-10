@@ -5,133 +5,87 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VIVA88</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { background: linear-gradient(to bottom, #0a1428, #1e3a8a); }
-    .tab-active { border-bottom: 4px solid #f97316; color: white; }
-  </style>
 </head>
-<body class="text-white min-h-screen">
+<body class="bg-zinc-950 text-white min-h-screen p-4">
   <div class="max-w-md mx-auto">
 
-    <div id="loginScreen" class="p-6">
-      <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
-      <div class="bg-zinc-900 rounded-3xl p-8">
-        <input id="username" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
-        <select id="role" class="w-full p-4 rounded-2xl bg-zinc-800 mb-6 text-black">
-          <option value="player">Thành viên</option>
-          <option value="agent">Đại lý</option>
-          <option value="admin">Admin (Khoa)</option>
-        </select>
-        <button onclick="login()" class="w-full bg-green-600 py-5 rounded-3xl font-bold text-xl">Vào Website</button>
-      </div>
+    <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
+
+    <!-- Login đơn giản -->
+    <div id="login" class="bg-zinc-900 rounded-3xl p-6 mb-6">
+      <input id="user" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
+      <select id="roleSelect" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
+        <option value="player">Thành viên</option>
+        <option value="agent">Đại lý</option>
+        <option value="admin">Admin (Khoa)</option>
+      </select>
+      <button onclick="startApp()" class="w-full bg-green-600 py-5 rounded-3xl font-bold">Vào Website</button>
     </div>
 
-    <div id="mainScreen" class="hidden">
-      <div class="flex justify-between p-4 bg-zinc-900">
-        <h1 class="text-4xl font-bold text-red-500">VIVA88</h1>
-        <button onclick="logout()" class="bg-red-600 px-5 py-2 rounded-2xl">Đăng xuất</button>
+    <div id="app" class="hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 id="greeting" class="text-xl font-bold"></h2>
+        <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded-2xl text-sm">Đăng xuất</button>
       </div>
 
-      <div id="userInfo" class="bg-zinc-900 p-4 text-center"></div>
-
-      <div class="flex bg-zinc-800">
-        <button onclick="showTab(0)" class="flex-1 py-4 tab-active" id="tab0">⚽ Bóng Đá</button>
-        <button onclick="showTab(1)" class="flex-1 py-4" id="tab1">🎰 Casino</button>
-        <button onclick="showTab(2)" class="flex-1 py-4" id="tab2">🐟 Bắn Cá</button>
-        <button onclick="showTab(3)" class="flex-1 py-4" id="tab3">📜 Lịch sử</button>
+      <div class="bg-zinc-900 rounded-3xl p-5 mb-6 text-center">
+        <p class="text-yellow-400 text-3xl font-bold" id="points">50.000 Điểm</p>
       </div>
 
-      <div id="tabContent" class="p-4"></div>
+      <!-- Bóng Đá -->
+      <div class="bg-zinc-900 rounded-3xl p-6 mb-6">
+        <h3 class="font-bold text-orange-400 mb-4">Man City vs Liverpool</h3>
+        <div class="grid grid-cols-3 gap-4">
+          <button onclick="bet(1.85, 'Thắng')" class="bg-green-600 py-8 rounded-2xl font-bold text-xl">1.85</button>
+          <button onclick="bet(3.6, 'Hòa')" class="bg-yellow-600 py-8 rounded-2xl font-bold text-xl">3.60</button>
+          <button onclick="bet(4.1, 'Thua')" class="bg-red-600 py-8 rounded-2xl font-bold text-xl">4.10</button>
+        </div>
+      </div>
+
+      <div class="text-center text-sm text-gray-400">
+        Nhấn vào nút tỉ lệ để đặt cược
+      </div>
     </div>
   </div>
 
   <script>
     let points = 50000;
-    let username = '';
-    let currentRole = '';
-    let history = [];
 
-    const matches = [
-      {league:"Premier League Ảo", match:"Man City vs Liverpool", home:1.85, draw:3.6, away:4.1},
-      {league:"La Liga Ảo", match:"Real Madrid vs Barcelona", home:2.1, draw:3.4, away:3.2},
-      {league:"Bundesliga Ảo", match:"Bayern vs Dortmund", home:1.7, draw:4.0, away:4.5},
-      {league:"V.League Ảo", match:"Hà Nội vs TP.HCM", home:2.2, draw:3.3, away:3.1}
-    ];
-
-    function login() {
-      username = document.getElementById('username').value || "Khoa";
-      currentRole = document.getElementById('role').value;
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('mainScreen').classList.remove('hidden');
+    function startApp() {
+      const name = document.getElementById('user').value || "Khoa";
+      const role = document.getElementById('roleSelect').value;
       
-      document.getElementById('userInfo').innerHTML = `
-        <p>Chào \( {username} ( \){currentRole})</p>
-        <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${points.toLocaleString('vi-VN')} Điểm</p>
-      `;
-      showTab(0);
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      
+      document.getElementById('greeting').innerHTML = `Chào \( {name} ( \){role})`;
+      document.getElementById('points').textContent = points.toLocaleString('vi-VN') + " Điểm";
     }
 
-    function logout() { location.reload(); }
+    function bet(odds, choice) {
+      const amount = prompt(`Cược ${choice} - Tỉ lệ ${odds}\nNhập số điểm muốn cược:`, "1000");
+      if (!amount) return;
 
-    function updatePoints() {
-      document.getElementById('pointsDisplay').textContent = points.toLocaleString('vi-VN') + " Điểm";
-    }
-
-    function placeBet(odds, selection, match) {
-      const amountStr = prompt(`Cược ${selection} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm cược:`, "1000");
-      if (!amountStr) return;
-      
-      const amount = parseInt(amountStr);
-      if (isNaN(amount) || amount <= 0) {
+      const betAmount = parseInt(amount);
+      if (isNaN(betAmount) || betAmount <= 0) {
         alert("❌ Số điểm không hợp lệ!");
         return;
       }
-      if (amount > points) {
+      if (betAmount > points) {
         alert("❌ Không đủ điểm!");
         return;
       }
 
-      points -= amount;
-      const winAmount = Math.round(amount * odds);
-      history.unshift({time: new Date().toLocaleString('vi-VN'), match, selection, amount, winAmount});
-      
-      updatePoints();
-      alert(`✅ Cược ${selection} thành công!\nNếu thắng nhận ${winAmount} điểm!`);
+      points -= betAmount;
+      document.getElementById('points').textContent = points.toLocaleString('vi-VN') + " Điểm";
+
+      const win = Math.round(betAmount * odds);
+      alert(`✅ Đã đặt cược ${choice} ${betAmount} điểm!\nNếu thắng nhận ${win} điểm!`);
     }
 
-    function showTab(tab) {
-      document.querySelectorAll('.tab-active').forEach(t => t.classList.remove('tab-active'));
-      document.getElementById('tab'+tab).classList.add('tab-active');
-
-      let html = '';
-      if (tab === 0) {
-        html = `<h2 class="text-2xl font-bold mb-6 text-center">Bóng Đá Ảo</h2>`;
-        matches.forEach(m => {
-          html += `
-            <div class="bg-zinc-900 p-6 rounded-3xl mb-6">
-              <p class="text-yellow-400">${m.league}</p>
-              <h3 class="font-bold">${m.match}</h3>
-              <div class="grid grid-cols-3 gap-3 mt-4">
-                <button onclick="placeBet(\( {m.home}, 'Thắng', ' \){m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
-                <button onclick="placeBet(\( {m.draw}, 'Hòa', ' \){m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
-                <button onclick="placeBet(\( {m.away}, 'Thua', ' \){m.match}')" class="bg-red-600 py-6 rounded-2xl font-bold">${m.away}</button>
-              </div>
-            </div>`;
-        });
-      } else if (tab === 1) {
-        html = `<h2 class="text-2xl font-bold mb-8 text-center">🎰 CASINO</h2>
-                <button onclick="playCasino()" class="w-full bg-purple-600 py-20 rounded-3xl text-3xl font-bold">TÀI XỈU</button>`;
-      } else if (tab === 2) {
-        html = `<h2 class="text-2xl font-bold mb-8 text-center">🐟 BẮN CÁ</h2>
-                <button onclick="playFish()" class="w-full bg-teal-600 py-20 rounded-3xl text-3xl font-bold">BẮT ĐẦU</button>`;
-      } else {
-        html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2><p class="text-gray-400">Chưa có dữ liệu</p>`;
-      }
-      document.getElementById('tabContent').innerHTML = html;
+    function logout() {
+      location.reload();
     }
-
-    function playCasino() { alert("Casino đang cập nhật..."); }
-    function playFish() { alert("Bắn Cá đang cập nhật..."); }
   </script>
 </body>
 </html>
