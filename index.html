@@ -13,9 +13,9 @@
     <div id="loginScreen" class="bg-zinc-900 rounded-3xl p-6">
       <input id="username" value="Khoa" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
       <select id="role" class="w-full p-4 rounded-2xl bg-zinc-800 mb-6 text-black">
-        <option value="player">Thành viên</option>
-        <option value="agent">Đại lý</option>
         <option value="admin">Admin (Khoa)</option>
+        <option value="agent">Đại lý</option>
+        <option value="player">Thành viên</option>
       </select>
       <button onclick="login()" class="w-full bg-green-600 py-5 rounded-3xl font-bold text-xl">Vào Website</button>
     </div>
@@ -32,28 +32,23 @@
   </div>
 
   <script>
+    let currentUser = {name: "Khoa", role: "admin"};
     let points = 50000;
     let history = [];
 
-    const matches = [
-      {match: "Man City vs Liverpool", home:1.85, draw:3.6, away:4.1},
-      {match: "Real Madrid vs Barcelona", home:2.1, draw:3.4, away:3.2},
-      {match: "Bayern vs Dortmund", home:1.7, draw:4.0, away:4.5},
-      {match: "Hà Nội vs TP.HCM", home:2.2, draw:3.3, away:3.1}
-    ];
-
     function login() {
-      const role = document.getElementById('role').value;
+      currentUser.name = document.getElementById('username').value || "Khoa";
+      currentUser.role = document.getElementById('role').value;
+      
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainScreen').classList.remove('hidden');
+      
       document.getElementById('userInfo').innerHTML = `
-        <p class="text-green-400">Chào Khoa (${role})</p>
+        <p class="text-green-400">Chào \( {currentUser.name} ( \){currentUser.role})</p>
         <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${points.toLocaleString('vi-VN')} Điểm</p>
       `;
 
-      if (role === 'admin') showAdminPanel();
-      else if (role === 'agent') showAgentPanel();
-      else showPlayerPanel();
+      renderPanel();
     }
 
     function logout() { location.reload(); }
@@ -63,9 +58,9 @@
     }
 
     function bet(odds, choice, match) {
+      if (currentUser.role !== "player") return alert("Chỉ Thành viên mới cược được!");
       const amount = parseInt(prompt(`Cược ${choice} - ${match}\nTỉ lệ ${odds}\nNhập số điểm:`, "1000"));
-      if (!amount || isNaN(amount) || amount <= 0) return alert("❌ Số điểm không hợp lệ!");
-      if (amount > points) return alert("❌ Không đủ điểm!");
+      if (!amount || amount > points) return alert("❌ Không đủ điểm!");
 
       points -= amount;
       const win = Math.round(amount * odds);
@@ -74,48 +69,42 @@
       alert(`✅ Cược ${choice} thành công!`);
     }
 
-    function showPlayerPanel() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Bóng Đá Ảo</h2>`;
-      matches.forEach(m => {
-        html += `
-          <div class="bg-zinc-900 p-6 rounded-3xl mb-6">
-            <h3 class="font-bold">${m.match}</h3>
-            <div class="grid grid-cols-3 gap-3 mt-4">
-              <button onclick="bet(\( {m.home}, 'Thắng', ' \){m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
-              <button onclick="bet(\( {m.draw}, 'Hòa', ' \){m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
-              <button onclick="bet(\( {m.away}, 'Thua', ' \){m.match}')" class="bg-red-600 py-6 rounded-2xl font-bold">${m.away}</button>
-            </div>
-          </div>`;
-      });
-      document.getElementById('tabContent').innerHTML = html;
-    }
-
-    function showAgentPanel() {
-      let html = `
-        <h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
-        <button onclick="alert('Bơm / Rút điểm cho thành viên (chức năng đang phát triển)')" class="w-full bg-amber-600 py-6 rounded-3xl mb-4 font-bold">Bơm / Rút Điểm</button>
-        <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>`;
-      document.getElementById('tabContent').innerHTML = html;
-    }
-
-    function showAdminPanel() {
-      let html = `
-        <h2 class="text-2xl font-bold mb-6 text-center text-orange-400">👑 Admin Panel - Khoa</h2>
-        <button onclick="let np = prompt('Nhập số điểm mới:', '100000'); if(np){points = parseInt(np); updatePoints(); alert('Chỉnh điểm thành công!');}" class="w-full bg-amber-600 py-6 rounded-3xl mb-4 font-bold">Chỉnh Điểm Thành Viên</button>
-        <button onclick="alert('Chỉnh sửa vé cược (chức năng đang phát triển)')" class="w-full bg-violet-600 py-6 rounded-3xl mb-4 font-bold">Chỉnh Sửa Vé Cược</button>
-        <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>`;
+    function renderPanel() {
+      let html = '';
+      if (currentUser.role === 'admin') {
+        html = `
+          <h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel</h2>
+          <button onclick="alert('Tạo Đại lý mới thành công!')" class="w-full bg-violet-600 py-6 rounded-3xl mb-4">Tạo Đại Lý Mới</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl">Xem Tất Cả Lịch Sử</button>`;
+      } else if (currentUser.role === 'agent') {
+        html = `
+          <h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
+          <button onclick="alert('Tạo Thành viên mới thành công!')" class="w-full bg-amber-600 py-6 rounded-3xl mb-4">Tạo Thành Viên Mới</button>
+          <button onclick="alert('Bơm/Rút điểm cho thành viên')" class="w-full bg-orange-600 py-6 rounded-3xl mb-4">Bơm / Rút Điểm</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl">Xem Lịch Sử Cược</button>`;
+      } else {
+        html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Bóng Đá Ảo</h2>`;
+        const matches = [{match: "Man City vs Liverpool", home:1.85, draw:3.6, away:4.1}];
+        matches.forEach(m => {
+          html += `
+            <div class="bg-zinc-900 p-6 rounded-3xl mb-6">
+              <h3 class="font-bold">${m.match}</h3>
+              <div class="grid grid-cols-3 gap-3 mt-4">
+                <button onclick="bet(\( {m.home}, 'Thắng', ' \){m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
+                <button onclick="bet(\( {m.draw}, 'Hòa', ' \){m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
+                <button onclick="bet(\( {m.away}, 'Thua', ' \){m.match}')" class="bg-red-600 py-6 rounded-2xl font-bold">${m.away}</button>
+              </div>
+            </div>`;
+        });
+      }
       document.getElementById('tabContent').innerHTML = html;
     }
 
     function showHistory() {
       let html = `<h2 class="text-2xl font-bold mb-6">📜 Lịch sử cược</h2>`;
-      if (history.length === 0) html += `<p class="text-gray-400 text-center">Chưa có vé cược</p>`;
+      if (history.length === 0) html += `<p class="text-gray-400">Chưa có vé cược</p>`;
       else history.forEach(h => {
-        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
-          ${h.time}<br>
-          ${h.match} - ${h.choice}<br>
-          <span class="text-green-400">${h.amount}đ → ${h.win}đ</span>
-        </div>`;
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${h.time} - ${h.match} - ${h.choice}</div>`;
       });
       document.getElementById('tabContent').innerHTML = html;
     }
