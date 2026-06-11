@@ -3,26 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - Cá Cược Điểm Ảo</title>
+  <title>VIVA88</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { 
-      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), 
-                  url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; 
-    }
-    .card { background: rgba(15, 23, 42, 0.95); }
+    body { background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; }
+    .card { background: rgba(15,23,42,0.95); }
   </style>
 </head>
 <body class="text-white min-h-screen">
   <div class="max-w-md mx-auto p-4" id="app">
 
-    <!-- LOGIN -->
     <div id="loginScreen">
       <div class="text-center py-12">
         <h1 class="text-6xl font-black text-red-500">VIVA88</h1>
-        <p class="text-sky-400 text-2xl mt-2">Cá Cược Điểm Ảo</p>
+        <p class="text-sky-400 text-2xl">Cá Cược Điểm Ảo</p>
       </div>
-      <input id="username" type="text" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4">
+      <input id="username" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4">
       <select id="role" class="w-full p-4 rounded-2xl bg-zinc-900 mb-6">
         <option value="member">Thành Viên</option>
         <option value="agent">Đại Lý</option>
@@ -31,13 +27,12 @@
       <button onclick="login()" class="w-full py-5 bg-red-600 rounded-2xl font-bold text-xl">ĐĂNG NHẬP</button>
     </div>
 
-    <!-- MAIN -->
     <div id="mainScreen" class="hidden">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex justify-between mb-6">
         <h1 id="title" class="text-3xl font-bold"></h1>
         <button onclick="logout()" class="px-6 py-2 bg-zinc-700 rounded-xl">Đăng xuất</button>
       </div>
-      <div id="panel" class="space-y-6"></div>
+      <div id="panel"></div>
     </div>
   </div>
 
@@ -46,8 +41,7 @@
     let data = JSON.parse(localStorage.getItem('viva88Data')) || {
       adminPoints: 1000000000,
       agents: [],
-      members: [],
-      pendingBets: []
+      members: []
     };
 
     function saveData() {
@@ -62,13 +56,13 @@
       currentUser = { username, role };
 
       if (role === 'member') {
-        let member = data.members.find(m => m.username === username);
-        if (!member) {
-          member = {username: username, points: 50000};
-          data.members.push(member);
+        let m = data.members.find(x => x.username === username);
+        if (!m) {
+          m = {username, points: 50000};
+          data.members.push(m);
         }
-        currentUser.points = member.points;
-        currentUser.memberData = member;
+        currentUser.points = m.points;
+        currentUser.memberData = m;
       }
 
       document.getElementById('loginScreen').classList.add('hidden');
@@ -83,126 +77,137 @@
     }
 
     function renderPanel() {
-      const panel = document.getElementById('panel');
       let html = '';
-
       if (currentUser.role === 'admin') {
-        document.getElementById('title').innerHTML = `👑 Admin - ${currentUser.username}`;
+        document.getElementById('title').innerHTML = `👑 Admin`;
         html = adminPanel();
       } else if (currentUser.role === 'agent') {
-        document.getElementById('title').innerHTML = `👔 Đại Lý - ${currentUser.username}`;
+        document.getElementById('title').innerHTML = `👔 Đại Lý`;
         html = agentPanel();
       } else {
-        document.getElementById('title').innerHTML = `⚽ Thành Viên - ${currentUser.username}`;
+        document.getElementById('title').innerHTML = `⚽ Thành Viên`;
         html = memberPanel();
       }
-      panel.innerHTML = html;
+      document.getElementById('panel').innerHTML = html;
     }
 
-    // ====================== ADMIN ======================
     function adminPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createAgent()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý Mới</button>
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
-          <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Đại Lý</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên</button>
-          <button onclick="adminPumpWithdraw('agent')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Đại Lý</button>
-          <button onclick="adminPumpWithdraw('member')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
-          <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán</button>
-          <button onclick="resolveBets()" class="w-full py-4 bg-orange-600 rounded-2xl">🏆 Chỉnh Sửa Vé Cược</button>
+          <button onclick="createAgent()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý</button>
+          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
+          <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Đại Lý</button>
+          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
+          <button onclick="napRutAdmin('agent')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Đại Lý</button>
+          <button onclick="napRutAdmin('member')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
         </div>`;
     }
 
-    // ====================== ĐẠI LÝ ======================
     function agentPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên</button>
-          <button onclick="agentPumpWithdraw()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
+          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
+          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
+          <button onclick="napRutAgent()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
         </div>`;
     }
 
-    // ====================== THÀNH VIÊN ======================
     function memberPanel() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
-      const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium","Vietnam","Thailand","Morocco","Senegal"];
-
+      let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026</h2>`;
+      const teams = ["Brazil","Argentina","France","England","Spain","Germany"];
       for (let i = 1; i <= 104; i++) {
-        const t1 = teams[(i-1) % teams.length];
-        const t2 = teams[(i + 7) % teams.length];
+        const t1 = teams[(i-1)%teams.length];
+        const t2 = teams[(i+3)%teams.length];
         html += `
-          <div class="match-card rounded-3xl p-5 mb-5 border border-sky-400/30">
-            <div class="text-sky-400 text-xs">#${i}</div>
-            <div class="text-xl font-bold">${t1} vs ${t2}</div>
+          <div class="card rounded-3xl p-5 mb-4">
+            <div class="font-bold">${t1} vs ${t2}</div>
             <div class="grid grid-cols-3 gap-2 mt-4">
-              <button onclick="placeBet('${t1} vs ${t2}', 'home', 1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà<br>1.85</button>
-              <button onclick="placeBet('${t1} vs ${t2}', 'draw', 3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa<br>3.40</button>
-              <button onclick="placeBet('${t1} vs ${t2}', 'away', 2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách<br>2.10</button>
+              <button onclick="placeBet(${i},1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà 1.85</button>
+              <button onclick="placeBet(${i},3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa 3.40</button>
+              <button onclick="placeBet(${i},2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách 2.10</button>
             </div>
           </div>`;
       }
-      return html + `<div class="text-center mt-8 text-3xl font-bold text-yellow-400">Điểm: ${currentUser.points.toLocaleString()} đ</div>`;
+      return html + `<div class="text-center text-3xl font-bold text-yellow-400 mt-6">Điểm: ${currentUser.points.toLocaleString()} đ</div>`;
     }
 
-    function placeBet(match, type, odds) {
-      const amount = parseInt(prompt(`Đặt cược ${match}\nKèo: ${type === 'home' ? 'Nhà' : type === 'draw' ? 'Hòa' : 'Khách'}\nTỉ lệ: ${odds}\nNhập số điểm:`, "10000"));
-      if (!amount || amount <= 0 || amount > currentUser.points) return alert("Số điểm không hợp lệ!");
+    function placeBet(id, odds) {
+      const amount = parseInt(prompt("Nhập số điểm cược:", "10000"));
+      if (!amount || amount > currentUser.points) return alert("Không đủ điểm!");
 
       currentUser.points -= amount;
       currentUser.memberData.points = currentUser.points;
 
-      data.pendingBets.push({
-        user: currentUser.username,
-        match: match,
-        type: type,
-        amount: amount,
-        odds: odds
-      });
-
-      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}. Chờ Admin xử lý!`);
+      alert(`✅ Đã cược ${amount.toLocaleString()} điểm!`);
       renderPanel();
       saveData();
     }
 
-    // ====================== CHỈNH SỬA VÉ CƯỢC (Admin) ======================
-    function resolveBets() {
-      if (data.pendingBets.length === 0) return alert("Không có vé cược nào đang chờ!");
+    function napRutAdmin(type) {
+      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
+      const name = prompt(`Nhập tên ${type === 'agent' ? 'Đại Lý' : 'Thành Viên'}:`);
+      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
+      if (!name || !amount) return;
 
-      let msg = "📋 DANH SÁCH VÉ CƯỢC ĐANG CHỜ:\n\n";
-      data.pendingBets.forEach((bet, index) => {
-        msg += `${index+1}. ${bet.user} - ${bet.match} (${bet.type}) - ${bet.amount} điểm\n`;
-      });
+      let list = type === 'agent' ? data.agents : data.members;
+      let item = list.find(x => x.username === name);
+      if (!item) return alert("Không tìm thấy!");
 
-      msg += "\nBạn muốn xử lý tất cả vé?";
-      if (confirm(msg)) {
-        let result = "KẾT QUẢ XỬ LÝ:\n\n";
-        data.pendingBets.forEach(bet => {
-          const isWin = confirm(`Vé của ${bet.user} - ${bet.match}\n\nTHẮNG hay THUA? (OK = Thắng, Cancel = Thua)`);
-          if (isWin) {
-            const payout = Math.floor(bet.amount * bet.odds);
-            result += `${bet.user} THẮNG +${payout} đ\n`;
-            let member = data.members.find(m => m.username === bet.user);
-            if (member) member.points += payout;
-          } else {
-            result += `${bet.user} THUA\n`;
-          }
-        });
-        alert(result);
-        data.pendingBets = [];
-        saveData();
+      if (action === "nhap") {
+        if (data.adminPoints < amount) return alert("Admin không đủ điểm!");
+        data.adminPoints -= amount;
+        item.points += amount;
+        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
+      } else {
+        if (item.points < amount) return alert("Không đủ điểm!");
+        data.adminPoints += amount;
+        item.points -= amount;
+        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
       }
+      saveData();
     }
 
-    // Các hàm khác
-    function createAgent() { const name = prompt("Nhập tên Đại Lý mới:"); if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("✅ Tạo thành công!"); } }
-    function createMember() { const name = prompt("Nhập tên Thành Viên mới:"); if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("✅ Tạo thành công!"); } }
-    function showAgents() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
-    function showMembers() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
-    function adminPumpWithdraw(type) { alert("💰 Chức năng Nạp/Rút đang hoạt động!"); }
-    function agentPumpWithdraw() { alert("💰 Chức năng Nạp/Rút Thành Viên đang hoạt động!"); }
-    function showAIPrediction() { alert("🤖 AI VIVA88 đang dự đoán..."); }
+    function napRutAgent() {
+      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
+      const name = prompt("Nhập tên Thành Viên:");
+      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
+      if (!name || !amount) return;
+
+      let member = data.members.find(m => m.username === name);
+      if (!member) return alert("Không tìm thấy!");
+
+      if (action === "nhap") {
+        member.points += amount;
+        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
+      } else {
+        if (member.points < amount) return alert("Không đủ điểm!");
+        member.points -= amount;
+        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
+      }
+      saveData();
+    }
+
+    function createAgent() {
+      const name = prompt("Tên Đại Lý mới:");
+      if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("Tạo thành công!"); }
+    }
+
+    function createMember() {
+      const name = prompt("Tên Thành Viên mới:");
+      if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("Tạo thành công!"); }
+    }
+
+    function showAgents() {
+      let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`;
+      data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`);
+      document.getElementById('panel').innerHTML = html;
+    }
+
+    function showMembers() {
+      let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`;
+      data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`);
+      document.getElementById('panel').innerHTML = html;
+    }
 
     window.onload = () => {};
   </script>
