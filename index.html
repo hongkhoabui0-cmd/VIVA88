@@ -34,23 +34,24 @@
   <script>
     let agents = JSON.parse(localStorage.getItem('agents')) || [];
     let members = JSON.parse(localStorage.getItem('members')) || [];
-    let adminPoints = 1000000000; // 1 tỷ
+    let adminPoints = JSON.parse(localStorage.getItem('adminPoints')) || 1000000000;
 
     function saveData() {
       localStorage.setItem('agents', JSON.stringify(agents));
       localStorage.setItem('members', JSON.stringify(members));
+      localStorage.setItem('adminPoints', adminPoints);
     }
 
     function login() {
       const username = document.getElementById('username').value.trim() || "Khoa";
       const role = document.getElementById('role').value;
-
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainScreen').classList.remove('hidden');
 
+      const points = role === 'admin' ? adminPoints : 50000;
       document.getElementById('userInfo').innerHTML = `
         <p class="text-green-400">Chào ${username} (${role})</p>
-        <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${role === 'admin' ? adminPoints.toLocaleString('vi-VN') : '50.000'} Điểm</p>
+        <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${points.toLocaleString('vi-VN')} Điểm</p>
       `;
 
       if (role === 'admin') showAdmin();
@@ -60,7 +61,7 @@
 
     function logout() { location.reload(); }
 
-    // ==================== ADMIN ====================
+    // ADMIN
     function showAdmin() {
       document.getElementById('tabContent').innerHTML = `
         <h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel</h2>
@@ -81,12 +82,11 @@
 
     function showAgentsList() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Đại Lý + Điểm</h2>`;
-      if (agents.length === 0) {
-        html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
-      } else {
+      if (agents.length === 0) html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
+      else {
         agents.forEach(a => {
           html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
-            <span class="font-medium">${a.username}</span>
+            <span>${a.username}</span>
             <span class="text-yellow-400 font-bold">${a.points.toLocaleString('vi-VN')} Điểm</span>
           </div>`;
         });
@@ -94,7 +94,7 @@
       document.getElementById('tabContent').innerHTML = html;
     }
 
-    // ==================== ĐẠI LÝ ====================
+    // ĐẠI LÝ
     function showAgent() {
       document.getElementById('tabContent').innerHTML = `
         <h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
@@ -115,12 +115,11 @@
 
     function showMembersList() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Thành Viên + Điểm</h2>`;
-      if (members.length === 0) {
-        html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
-      } else {
+      if (members.length === 0) html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
+      else {
         members.forEach(m => {
           html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
-            <span class="font-medium">${m.username}</span>
+            <span>${m.username}</span>
             <span class="text-yellow-400 font-bold">${m.points.toLocaleString('vi-VN')} Điểm</span>
           </div>`;
         });
@@ -128,9 +127,12 @@
       document.getElementById('tabContent').innerHTML = html;
     }
 
-    // Thành viên
+    // THÀNH VIÊN
     function showPlayer() {
-      document.getElementById('tabContent').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Chào Thành Viên</h2><p class="text-center">Chức năng chơi game đang hoạt động</p>`;
+      document.getElementById('tabContent').innerHTML = `
+        <h2 class="text-2xl font-bold mb-6 text-orange-400">Chào Thành Viên</h2>
+        <p class="text-center text-zinc-400">Chức năng chơi game (Bóng đá, Tài Xỉu, Bắn Cá) đang hoạt động</p>
+      `;
     }
   </script>
 </body>
