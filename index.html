@@ -12,8 +12,8 @@
       transition: all 0.3s;
     }
     .match-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.6);
     }
   </style>
 </head>
@@ -22,65 +22,32 @@
     <div class="text-center mb-10">
       <h1 class="text-7xl font-bold text-red-500 tracking-widest">VIVA88</h1>
       <p class="text-sky-400 text-2xl font-medium mt-2">AI DỰ ĐOÁN BÓNG ĐÁ</p>
-      <p class="text-amber-400 text-sm mt-1">World Cup 2026 Qualifiers & 5 Giải Lớn</p>
+      <p class="text-amber-400 text-sm mt-1">World Cup 2026 & 5 Giải Lớn</p>
     </div>
 
     <div id="content" class="space-y-6"></div>
   </div>
 
   <script>
-    const API_KEY = "9fb24f52024e8386a86543601550d805";
-
-    async function loadMatches() {
-      document.getElementById('content').innerHTML = `<p class="text-center py-12">Đang tải dữ liệu từ API...</p>`;
-
-      try {
-        const res = await fetch("https://api-football-v1.p.rapidapi.com/v3/fixtures?next=50", {
-          headers: {
-            "x-rapidapi-key": API_KEY,
-            "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
-          }
-        });
-        const data = await res.json();
-
-        let html = `<h2 class="text-2xl font-bold mb-8 text-center text-amber-400">🔥 Trận Sắp Diễn Ra</h2>`;
-
-        data.response.slice(0, 15).forEach(f => {
-          const home = f.teams.home.name;
-          const away = f.teams.away.name;
-          const league = f.league.name;
-          html += `
-            <div class="match-card rounded-3xl p-6 mb-6 border border-sky-500/30">
-              <div class="text-sky-400 text-xs mb-1">${league}</div>
-              <div class="font-bold text-lg">${home} <span class="text-red-500">VS</span> ${away}</div>
-              <button onclick="getPrediction('${home} vs ${away}')" class="w-full mt-5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 py-5 rounded-2xl font-bold text-lg">
-                🤖 AI DỰ ĐOÁN
-              </button>
-            </div>`;
-        });
-
-        document.getElementById('content').innerHTML = html;
-      } catch (e) {
-        generatePopularMatches();
-      }
-    }
-
-    function generatePopularMatches() {
-      const popular = [
+    function generateMatches() {
+      const matches = [
         {match: "Man City vs Liverpool", league: "Premier League"},
         {match: "Real Madrid vs Barcelona", league: "La Liga"},
         {match: "Bayern Munich vs Dortmund", league: "Bundesliga"},
-        {match: "Juventus vs Inter", league: "Serie A"},
+        {match: "Juventus vs Inter Milan", league: "Serie A"},
         {match: "Paris SG vs Marseille", league: "Ligue 1"},
+        {match: "Hà Nội vs TP.HCM", league: "V.League"},
         {match: "Vietnam vs Thailand", league: "ASEAN Cup"},
         {match: "Brazil vs Argentina", league: "World Cup Qualifier"},
         {match: "England vs Germany", league: "Friendly"},
         {match: "Saudi Arabia vs Japan", league: "World Cup Qualifier"},
-        {match: "Portugal vs Spain", league: "Nations League"}
+        {match: "Portugal vs Spain", league: "Nations League"},
+        {match: "Argentina vs Colombia", league: "World Cup Qualifier"}
       ];
 
       let html = `<h2 class="text-2xl font-bold mb-8 text-center text-amber-400">🔥 Các Trận Nổi Bật</h2>`;
-      popular.forEach(m => {
+
+      matches.forEach(m => {
         html += `
           <div class="match-card rounded-3xl p-6 mb-6 border border-sky-500/30">
             <div class="text-sky-400 text-xs mb-1">${m.league}</div>
@@ -90,6 +57,7 @@
             </button>
           </div>`;
       });
+
       document.getElementById('content').innerHTML = html;
     }
 
@@ -98,7 +66,7 @@
       alert(`🤖 AI DỰ ĐOÁN\n\nTrận: ${match}\nXác suất Thắng Nhà: ${prob}%\n\n💡 Gợi ý: Nên cược Thắng!`);
     }
 
-    window.onload = loadMatches;
+    window.onload = generateMatches;
   </script>
 </body>
 </html>
