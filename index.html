@@ -3,88 +3,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - AI World Cup 2026</title>
+  <title>VIVA88 - Cá Cược Điểm Ảo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)), 
-                  url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat fixed;
-      background-attachment: fixed;
+    body { 
+      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), 
+                  url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; 
     }
-    .match-card {
-      background: rgba(15, 23, 42, 0.95);
-      transition: all 0.4s;
-    }
-    .match-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.8);
-    }
-    img {
-      height: 190px;
-      object-fit: cover;
-      width: 100%;
-    }
+    .card { background: rgba(15, 23, 42, 0.95); }
+    .match-card { background: rgba(15, 23, 42, 0.98); }
   </style>
 </head>
-<body class="text-white min-h-screen pb-12">
-  <div class="max-w-md mx-auto px-4 py-8">
-    <div class="text-center mb-10">
-      <h1 class="text-6xl font-black text-red-500 tracking-widest">VIVA88</h1>
-      <p class="text-3xl text-sky-400 font-semibold mt-1">WORLD CUP 2026</p>
-      <p class="text-amber-400 text-xl mt-2">🤖 AI DỰ ĐOÁN • 104 TRẬN</p>
+<body class="text-white min-h-screen">
+  <div class="max-w-md mx-auto p-4" id="app">
+
+    <!-- LOGIN -->
+    <div id="loginScreen">
+      <div class="text-center py-12">
+        <h1 class="text-6xl font-black text-red-500">VIVA88</h1>
+        <p class="text-sky-400 text-2xl mt-2">Cá Cược Điểm Ảo</p>
+      </div>
+      <input id="username" type="text" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4 text-lg">
+      <select id="role" class="w-full p-4 rounded-2xl bg-zinc-900 mb-6 text-lg">
+        <option value="member">Thành Viên</option>
+        <option value="agent">Đại Lý</option>
+        <option value="admin">Admin (Khoa)</option>
+      </select>
+      <button onclick="login()" class="w-full py-5 bg-red-600 rounded-2xl font-bold text-xl">ĐĂNG NHẬP</button>
     </div>
 
-    <div id="content" class="space-y-6"></div>
+    <!-- MAIN -->
+    <div id="mainScreen" class="hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h1 id="title" class="text-3xl font-bold"></h1>
+        <button onclick="logout()" class="px-6 py-2 bg-zinc-700 rounded-xl">Đăng xuất</button>
+      </div>
+      <div id="panel" class="space-y-6"></div>
+    </div>
   </div>
 
   <script>
-    let allMatches = [];
-    const leagues = ["Vòng Bảng", "Vòng 16", "Tứ Kết", "Bán Kết", "Chung Kết"];
+    let currentUser = null;
+    let data = JSON.parse(localStorage.getItem('viva88Data')) || {
+      adminPoints: 1000000000,
+      agents: [],
+      members: [],
+      history: []
+    };
 
-    for (let i = 1; i <= 104; i++) {
-      const leagueIndex = Math.floor((i-1)/25);
-      allMatches.push({
-        id: i,
-        match: `Trận ${i}`,
-        detail: `Đội ${String.fromCharCode(65 + (i % 8))} vs Đội ${String.fromCharCode(73 + (i % 8))}`,
-        league: leagues[leagueIndex] + " - World Cup 2026"
-      });
+    function saveData() {
+      localStorage.setItem('viva88Data', JSON.stringify(data));
     }
 
-    function renderMatches() {
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const role = document.getElementById('role').value;
+      if (!username) return alert("Vui lòng nhập tên!");
+
+      currentUser = { username, role };
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainScreen').classList.remove('hidden');
+      renderPanel();
+    }
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('mainScreen').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+    }
+
+    function renderPanel() {
+      const panel = document.getElementById('panel');
       let html = '';
-      allMatches.forEach(m => {
-        // Hình ảnh cầu thủ / bóng đá khác nhau cho mỗi trận
-        const imgId = 1000 + (m.id % 80);
-        const imgUrl = `https://picsum.photos/id/${imgId}/600/200`;
-        
+
+      if (currentUser.role === 'admin') {
+        document.getElementById('title').innerHTML = `👑 Admin - ${currentUser.username}`;
+        html = adminPanel();
+      } else if (currentUser.role === 'agent') {
+        document.getElementById('title').innerHTML = `👔 Đại Lý - ${currentUser.username}`;
+        html = agentPanel();
+      } else {
+        document.getElementById('title').innerHTML = `⚽ Thành Viên - ${currentUser.username}`;
+        html = memberPanel();
+      }
+      panel.innerHTML = html;
+    }
+
+    // ================== ADMIN PANEL ==================
+    function adminPanel() {
+      return `
+        <div class="card p-6 rounded-3xl space-y-4">
+          <button onclick="createAgent()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý Mới</button>
+          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
+          <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Đại Lý + Điểm</button>
+          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên + Điểm</button>
+          <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán Bóng Đá</button>
+        </div>`;
+    }
+
+    // ================== AGENT PANEL ==================
+    function agentPanel() {
+      return `
+        <div class="card p-6 rounded-3xl space-y-4">
+          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
+          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên + Điểm</button>
+          <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán</button>
+        </div>`;
+    }
+
+    // ================== MEMBER PANEL (104 TRẬN) ==================
+    function memberPanel() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
+      
+      // Tạo 104 trận với tên đội thật
+      const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium","Mexico","USA","Japan","South Korea","Vietnam","Thailand","Morocco","Senegal"];
+      
+      for (let i = 1; i <= 104; i++) {
+        const t1 = teams[(i-1) % teams.length];
+        const t2 = teams[(i + 5) % teams.length];
         html += `
-          <div class="match-card rounded-3xl overflow-hidden border border-sky-400/30">
-            <img src="${imgUrl}" alt="Cầu thủ bóng đá">
-            
-            <div class="p-5">
-              <div class="flex justify-between text-xs text-sky-400 mb-2">
-                <span class="font-bold">#${m.id}</span>
-                <span>${m.league}</span>
-              </div>
-              <div class="text-xl font-bold">${m.detail}</div>
-              
-              <button onclick="getPrediction('${m.detail}')" 
-                class="w-full mt-5 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:to-yellow-600 py-5 rounded-2xl font-bold text-lg shadow-xl">
-                🤖 AI DỰ ĐOÁN NGAY
-              </button>
-            </div>
+          <div class="match-card rounded-3xl p-5 mb-5 border border-sky-400/30">
+            <div class="text-sky-400 text-xs mb-1">#${i} - World Cup 2026</div>
+            <div class="text-xl font-bold">${t1} vs ${t2}</div>
+            <button onclick="placeBet('${t1} vs ${t2}')" 
+              class="w-full mt-4 py-4 bg-green-600 rounded-2xl font-bold">ĐẶT CƯỢC</button>
           </div>`;
-      });
-      document.getElementById('content').innerHTML = html;
+      }
+      return html;
     }
 
-    function getPrediction(match) {
-      const prob = Math.floor(Math.random() * 45) + 50;
-      alert(`🤖 AI VIVA88 DỰ ĐOÁN\n\n${match}\n\nXác suất thắng: ${prob}%\n\n💡 Gợi ý: Nên cược mạnh!`);
+    // Các hàm hỗ trợ
+    function createAgent() {
+      const name = prompt("Nhập tên Đại Lý mới:");
+      if (name) {
+        data.agents.push({username: name, points: 50000});
+        saveData();
+        alert("✅ Tạo Đại Lý thành công!");
+      }
     }
 
-    window.onload = renderMatches;
+    function createMember() {
+      const name = prompt("Nhập tên Thành Viên mới:");
+      if (name) {
+        data.members.push({username: name, points: 50000});
+        saveData();
+        alert("✅ Tạo Thành Viên thành công!");
+      }
+    }
+
+    function showAgents() {
+      let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`;
+      data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`);
+      document.getElementById('panel').innerHTML = html;
+    }
+
+    function showMembers() {
+      let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`;
+      data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`);
+      document.getElementById('panel').innerHTML = html;
+    }
+
+    function showAIPrediction() {
+      alert("🤖 AI VIVA88 đang dự đoán kết quả World Cup 2026...");
+    }
+
+    function placeBet(match) {
+      const amount = parseInt(prompt(`Đặt cược cho ${match}\nNhập số điểm:`, "10000"));
+      if (!amount || amount <= 0) return;
+
+      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}`);
+
+      if (Math.random() > 0.45) {
+        const win = Math.floor(amount * 1.8);
+        alert(`🎉 THẮNG! +${win.toLocaleString()} điểm`);
+      } else {
+        alert("😢 Thua cược.");
+      }
+    }
+
+    window.onload = () => {};
   </script>
 </body>
 </html>
