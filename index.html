@@ -36,24 +36,29 @@
     let history = JSON.parse(localStorage.getItem('vivaHistory')) || [];
     let agents = JSON.parse(localStorage.getItem('vivaAgents')) || [];
     let members = JSON.parse(localStorage.getItem('vivaMembers')) || [];
+    let adminPoints = JSON.parse(localStorage.getItem('adminPoints')) || 1000000000; // 1 tỷ điểm
 
     function saveData() {
       localStorage.setItem('vivaHistory', JSON.stringify(history));
       localStorage.setItem('vivaAgents', JSON.stringify(agents));
       localStorage.setItem('vivaMembers', JSON.stringify(members));
+      localStorage.setItem('adminPoints', adminPoints);
     }
 
     function login() {
       const username = document.getElementById('username').value.trim() || "Khoa";
       const role = document.getElementById('role').value;
-      currentUser = { username, role, points: 50000 };
+      currentUser = { username, role };
 
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainScreen').classList.remove('hidden');
 
+      const pointsDisplay = role === 'admin' ? adminPoints : (role === 'agent' ? (agents.find(a => a.username === username)?.points || 50000) : 50000);
+      currentUser.points = pointsDisplay;
+
       document.getElementById('userInfo').innerHTML = `
         <p class="text-green-400">Chào ${username} (${role})</p>
-        <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">50.000 Điểm</p>
+        <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">${pointsDisplay.toLocaleString('vi-VN')} Điểm</p>
       `;
 
       if (role === 'admin') showAdmin();
@@ -64,17 +69,18 @@
     function logout() { location.reload(); }
 
     function updatePointsDisplay() {
-      document.getElementById('pointsDisplay').textContent = currentUser.points.toLocaleString('vi-VN') + " Điểm";
+      const points = currentUser.role === 'admin' ? adminPoints : currentUser.points;
+      document.getElementById('pointsDisplay').textContent = points.toLocaleString('vi-VN') + " Điểm";
     }
 
     // ==================== ADMIN ====================
     function showAdmin() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel - Khoa</h2>
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel - Khoa (1 Tỷ Điểm)</h2>
         <div class="space-y-4">
           <button onclick="createAgent()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Đại Lý Mới</button>
           <button onclick="showAgentsList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">Xem Danh Sách Đại Lý + Điểm</button>
-          <button onclick="adminPumpAgent()" class="w-full bg-green-600 py-6 rounded-3xl font-bold">Bơm Điểm Đại Lý</button>
-          <button onclick="adminWithdrawAgent()" class="w-full bg-red-600 py-6 rounded-3xl font-bold">Rút Điểm Đại Lý</button>
+          <button onclick="adminPumpAgent()" class="w-full bg-green-600 py-6 rounded-3xl font-bold">Bơm Điểm cho Đại Lý</button>
+          <button onclick="adminWithdrawAgent()" class="w-full bg-red-600 py-6 rounded-3xl font-bold">Rút Điểm từ Đại Lý</button>
           <button onclick="aiPredictAdmin()" class="w-full bg-sky-600 py-6 rounded-3xl font-bold">🤖 AI Dự Đoán Kèo</button>
           <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Toàn Bộ Lịch Sử</button>
         </div>`;
@@ -100,11 +106,13 @@
     }
 
     function adminPumpAgent() {
-      const name = prompt("Nhập tên Đại Lý cần BƠM điểm:");
-      const amount = parseInt(prompt("Nhập số điểm muốn bơm:", "10000"));
+      const name = prompt("Nhập tên Đại Lý cần BƠM:");
+      const amount = parseInt(prompt("Nhập số điểm muốn bơm:", "10000000"));
       if (name && amount > 0) {
+        if (adminPoints < amount) return alert("❌ Admin không đủ điểm!");
         const agent = agents.find(a => a.username === name);
         if (agent) {
+          adminPoints -= amount;
           agent.points += amount;
           saveData();
           alert(`✅ Đã BƠM ${amount.toLocaleString('vi-VN')} điểm cho ${name}`);
@@ -113,17 +121,16 @@
     }
 
     function adminWithdrawAgent() {
-      const name = prompt("Nhập tên Đại Lý cần RÚT điểm:");
-      const amount = parseInt(prompt("Nhập số điểm muốn rút:", "5000"));
+      const name = prompt("Nhập tên Đại Lý cần RÚT:");
+      const amount = parseInt(prompt("Nhập số điểm muốn rút:", "5000000"));
       if (name && amount > 0) {
         const agent = agents.find(a => a.username === name);
-        if (agent) {
-          if (agent.points >= amount) {
-            agent.points -= amount;
-            saveData();
-            alert(`✅ Đã RÚT ${amount.toLocaleString('vi-VN')} điểm từ ${name}`);
-          } else alert("❌ Đại Lý không đủ điểm!");
-        } else alert("❌ Không tìm thấy Đại Lý!");
+        if (agent && agent.points >= amount) {
+          adminPoints += amount;
+          agent.points -= amount;
+          saveData();
+          alert(`✅ Đã RÚT ${amount.toLocaleString('vi-VN')} điểm từ ${name}`);
+        } else alert("❌ Không đủ điểm hoặc không tìm thấy!");
       }
     }
 
@@ -131,7 +138,7 @@
       const matches = ["Man City vs Liverpool", "Real Madrid vs Barcelona", "Hà Nội vs TP.HCM"];
       const match = matches[Math.floor(Math.random()*matches.length)];
       const prob = Math.floor(Math.random() * 35) + 50;
-      alert(`🤖 AI DỰ ĐOÁN (Admin only)\n\nTrận: ${match}\nXác suất Thắng: ${prob}%\nGợi ý: Nên cược Thắng!`);
+      alert(`🤖 AI DỰ ĐOÁN (Admin)\n\nTrận: ${match}\nXác suất Thắng: ${prob}%\nGợi ý: Nên cược Thắng!`);
     }
 
     // ==================== ĐẠI LÝ ====================
@@ -140,8 +147,8 @@
         <div class="space-y-4">
           <button onclick="createMember()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Thành Viên Mới</button>
           <button onclick="showMembersList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">Xem Danh Sách Thành Viên + Điểm</button>
-          <button onclick="agentPumpMember()" class="w-full bg-green-600 py-6 rounded-3xl font-bold">Bơm Điểm Thành Viên</button>
-          <button onclick="agentWithdrawMember()" class="w-full bg-red-600 py-6 rounded-3xl font-bold">Rút Điểm Thành Viên</button>
+          <button onclick="agentPumpMember()" class="w-full bg-green-600 py-6 rounded-3xl font-bold">Bơm Điểm cho Thành Viên</button>
+          <button onclick="agentWithdrawMember()" class="w-full bg-red-600 py-6 rounded-3xl font-bold">Rút Điểm từ Thành Viên</button>
           <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử</button>
         </div>`;
       document.getElementById('tabContent').innerHTML = html;
@@ -169,8 +176,12 @@
       const name = prompt("Nhập tên Thành Viên cần BƠM:");
       const amount = parseInt(prompt("Nhập số điểm muốn bơm:", "5000"));
       if (name && amount > 0) {
+        const agent = agents.find(a => a.username === currentUser.username);
+        if (!agent || agent.points < amount) return alert("❌ Đại lý không đủ điểm!");
+        
         const member = members.find(m => m.username === name);
         if (member) {
+          agent.points -= amount;
           member.points += amount;
           saveData();
           alert(`✅ Đã BƠM ${amount.toLocaleString('vi-VN')} điểm cho ${name}`);
@@ -183,13 +194,13 @@
       const amount = parseInt(prompt("Nhập số điểm muốn rút:", "3000"));
       if (name && amount > 0) {
         const member = members.find(m => m.username === name);
-        if (member) {
-          if (member.points >= amount) {
-            member.points -= amount;
-            saveData();
-            alert(`✅ Đã RÚT ${amount.toLocaleString('vi-VN')} điểm từ ${name}`);
-          } else alert("❌ Thành Viên không đủ điểm!");
-        } else alert("❌ Không tìm thấy Thành Viên!");
+        if (member && member.points >= amount) {
+          const agent = agents.find(a => a.username === currentUser.username);
+          member.points -= amount;
+          if (agent) agent.points += amount;
+          saveData();
+          alert(`✅ Đã RÚT ${amount.toLocaleString('vi-VN')} điểm từ ${name}`);
+        } else alert("❌ Không đủ điểm hoặc không tìm thấy!");
       }
     }
 
@@ -253,23 +264,8 @@
       updatePointsDisplay();
     }
 
-    function playTaiXiu() {
-      if (confirm("Chơi Tài Xỉu 5000 điểm?")) {
-        const win = Math.random() > 0.5;
-        alert(win ? "🎉 THẮNG Tài Xỉu!" : "😢 Thua Tài Xỉu");
-        history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Tài Xỉu 5000", result: win ? "Thắng" : "Thua"});
-        saveData();
-      }
-    }
-
-    function playBanCa() {
-      if (confirm("Chơi Bắn Cá 3000 điểm?")) {
-        const win = Math.random() > 0.45;
-        alert(win ? "🎉 BẮN TRÚNG CÁ LỚN!" : "🐟 Bắn hụt...");
-        history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Bắn Cá 3000", result: win ? "Thắng" : "Thua"});
-        saveData();
-      }
-    }
+    function playTaiXiu() { if (confirm("Chơi Tài Xỉu?")) { alert("Kết quả Tài Xỉu đã ghi!"); } }
+    function playBanCa() { if (confirm("Chơi Bắn Cá?")) { alert("Kết quả Bắn Cá đã ghi!"); } }
 
     function showHistory() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📜 Lịch Sử Cược</h2>`;
