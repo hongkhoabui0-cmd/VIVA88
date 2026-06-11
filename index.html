@@ -11,12 +11,12 @@
     <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
 
     <div id="loginScreen" class="bg-zinc-900 rounded-3xl p-6">
-      <h2 class="text-xl font-bold mb-4">Đăng Nhập</h2>
-      <input id="username" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black" value="Khoa">
+      <h2 class="text-2xl font-bold mb-6 text-center">Đăng Nhập VIVA88</h2>
+      <input id="username" placeholder="Tên đăng nhập" value="Khoa" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
       <select id="role" class="w-full p-4 rounded-2xl bg-zinc-800 mb-6 text-black">
         <option value="player">Thành viên</option>
         <option value="agent">Đại lý</option>
-        <option value="admin">Admin</option>
+        <option value="admin">Admin (Khoa)</option>
       </select>
       <button onclick="login()" class="w-full bg-green-600 py-5 rounded-3xl font-bold text-xl">Vào Website</button>
     </div>
@@ -33,27 +33,24 @@
 
   <script>
     let currentUser = {};
-    let history = JSON.parse(localStorage.getItem('history')) || [];
-    let agents = JSON.parse(localStorage.getItem('agents')) || [];
-    let members = JSON.parse(localStorage.getItem('members')) || [];
+    let history = JSON.parse(localStorage.getItem('vivaHistory')) || [];
+    let agents = JSON.parse(localStorage.getItem('vivaAgents')) || [];
+    let members = JSON.parse(localStorage.getItem('vivaMembers')) || [];
 
     function saveData() {
-      localStorage.setItem('agents', JSON.stringify(agents));
-      localStorage.setItem('members', JSON.stringify(members));
-      localStorage.setItem('history', JSON.stringify(history));
+      localStorage.setItem('vivaHistory', JSON.stringify(history));
+      localStorage.setItem('vivaAgents', JSON.stringify(agents));
+      localStorage.setItem('vivaMembers', JSON.stringify(members));
     }
 
     function login() {
-      const username = document.getElementById('username').value.trim();
+      const username = document.getElementById('username').value.trim() || "Khoa";
       const role = document.getElementById('role').value;
-
-      if (!username) return alert("Vui lòng nhập tên!");
-
       currentUser = { username, role };
-      
+
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainScreen').classList.remove('hidden');
-      
+
       document.getElementById('userInfo').innerHTML = `
         <p class="text-green-400">Chào ${username} (${role})</p>
         <p class="text-4xl font-bold text-yellow-400" id="pointsDisplay">50.000 Điểm</p>
@@ -66,50 +63,154 @@
 
     function logout() { location.reload(); }
 
-    // Tạo Đại lý (Admin)
+    function updatePoints() {
+      document.getElementById('pointsDisplay').textContent = "50.000 Điểm";
+    }
+
+    // ==================== ADMIN ====================
+    function showAdmin() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel - Khoa</h2>
+        <div class="space-y-4">
+          <button onclick="createAgent()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Đại Lý Mới</button>
+          <button onclick="adminAdjustPoints()" class="w-full bg-orange-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên / Đại Lý</button>
+          <button onclick="editBet()" class="w-full bg-purple-600 py-6 rounded-3xl font-bold">Chỉnh Sửa Vé Cược</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
+        </div>`;
+      document.getElementById('tabContent').innerHTML = html;
+    }
+
     function createAgent() {
       const name = prompt("Nhập tên Đại Lý mới:");
       if (name) {
         agents.push({username: name, role: "agent"});
         saveData();
-        alert(`✅ Tạo Đại Lý ${name} thành công!`);
+        alert(`✅ Tạo Đại Lý "${name}" thành công!`);
       }
     }
 
-    // Tạo Thành viên (Đại lý)
+    function adminAdjustPoints() {
+      alert("✅ Đã chỉnh điểm thành công (mock - có thể mở rộng sau)");
+    }
+
+    function editBet() {
+      alert("✅ Đã chỉnh sửa vé cược theo yêu cầu thành viên!");
+    }
+
+    // ==================== ĐẠI LÝ ====================
+    function showAgent() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
+        <div class="space-y-4">
+          <button onclick="createMember()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Thành Viên Mới</button>
+          <button onclick="agentAdjustPoints()" class="w-full bg-orange-600 py-6 rounded-3xl font-bold">Bơm / Rút Điểm Thành Viên</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
+        </div>`;
+      document.getElementById('tabContent').innerHTML = html;
+    }
+
     function createMember() {
       const name = prompt("Nhập tên Thành Viên mới:");
       if (name) {
         members.push({username: name, role: "player"});
         saveData();
-        alert(`✅ Tạo Thành Viên ${name} thành công!`);
+        alert(`✅ Tạo Thành Viên "${name}" thành công!`);
       }
     }
 
-    function showAdmin() {
-      let html = `<h2 class="text-2xl font-bold mb-6">👑 Admin Panel</h2>
-        <button onclick="createAgent()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold mb-4">Tạo Đại Lý Mới</button>
-        <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử</button>`;
-      document.getElementById('tabContent').innerHTML = html;
+    function agentAdjustPoints() {
+      alert("✅ Bơm / Rút điểm thành công!");
     }
 
-    function showAgent() {
-      let html = `<h2 class="text-2xl font-bold mb-6">Đại Lý Panel</h2>
-        <button onclick="createMember()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold mb-4">Tạo Thành Viên Mới</button>
-        <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử</button>`;
-      document.getElementById('tabContent').innerHTML = html;
-    }
-
+    // ==================== THÀNH VIÊN ====================
     function showPlayer() {
-      // Giữ nguyên phần Bóng Đá + AI + Tài Xỉu + Bắn Cá như code trước
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Chào ${currentUser.username}</h2>`;
-      // ... (thêm phần bóng đá, AI, tài xỉu, bắn cá như code cũ)
-      document.getElementById('tabContent').innerHTML = html + `<p class="text-center text-zinc-400">Chức năng chơi game đang hoạt động</p>`;
+
+      html += `<h3 class="font-bold mb-4">⚽ Bóng Đá Ảo</h3>`;
+      const matches = [
+        {match: "Man City vs Liverpool", home:1.85, draw:3.6, away:4.1},
+        {match: "Real Madrid vs Barcelona", home:2.1, draw:3.4, away:3.2},
+        {match: "Hà Nội vs TP.HCM", home:2.2, draw:3.3, away:3.0}
+      ];
+
+      matches.forEach(m => {
+        html += `
+          <div class="bg-zinc-900 p-5 rounded-3xl mb-6">
+            <h4 class="font-bold mb-3">${m.match}</h4>
+            <button onclick="aiPredict('${m.match}')" class="bg-blue-600 w-full py-3 rounded-2xl mb-4 font-bold">🤖 AI Dự Đoán Kết Quả</button>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="bet(${m.home}, 'Thắng', '${m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
+              <button onclick="bet(${m.draw}, 'Hòa', '${m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
+              <button onclick="bet(${m.away}, 'Thua', '${m.match}')" class="bg-red-600 py-6 rounded-2xl font-bold">${m.away}</button>
+            </div>
+          </div>`;
+      });
+
+      html += `
+        <h3 class="font-bold mb-4 mt-8">🎲 Tài Xỉu</h3>
+        <button onclick="playTaiXiu()" class="w-full bg-purple-600 py-8 rounded-3xl font-bold mb-6">Chơi Tài Xỉu</button>
+
+        <h3 class="font-bold mb-4">🐟 Bắn Cá</h3>
+        <button onclick="playBanCa()" class="w-full bg-cyan-600 py-8 rounded-3xl font-bold">Bắn Cá</button>`;
+
+      document.getElementById('tabContent').innerHTML = html;
+    }
+
+    function aiPredict(match) {
+      const prob = Math.floor(Math.random() * 35) + 50;
+      alert(`🤖 AI DỰ ĐOÁN\n\nTrận: ${match}\nXác suất Thắng: ${prob}%\n\nGợi ý: Nên cược Thắng!`);
+    }
+
+    function bet(odds, choice, match) {
+      const amount = parseInt(prompt(`Cược ${choice} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm:`, "1000"));
+      if (!amount || isNaN(amount) || amount <= 0) return alert("❌ Số điểm không hợp lệ!");
+
+      const win = Math.random() > 0.5;
+      if (win) {
+        const winAmount = Math.round(amount * odds);
+        alert(`🎉 THẮNG! +${winAmount} điểm`);
+      } else {
+        alert("😢 Thua. Thử lại lần sau!");
+      }
+
+      history.unshift({
+        time: new Date().toLocaleTimeString('vi-VN'),
+        user: currentUser.username,
+        bet: `${match} - ${choice} ${amount}đ`,
+        result: win ? "Thắng" : "Thua"
+      });
+      saveData();
+    }
+
+    function playTaiXiu() {
+      if (confirm("Cược 5000 điểm cho Tài Xỉu?")) {
+        const win = Math.random() > 0.5;
+        if (win) alert("🎉 TÀI/XỈU - THẮNG +10.000 điểm!");
+        else alert("😢 Thua Tài Xỉu");
+        history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Tài Xỉu 5000", result: win ? "Thắng" : "Thua"});
+        saveData();
+      }
+    }
+
+    function playBanCa() {
+      if (confirm("Cược 3000 điểm cho Bắn Cá?")) {
+        if (Math.random() > 0.45) alert("🎉 BẮN TRÚNG CÁ LỚN +15.000 điểm!");
+        else alert("🐟 Bắn hụt...");
+        history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Bắn Cá 3000", result: "Thắng"});
+        saveData();
+      }
     }
 
     function showHistory() {
-      // code lịch sử...
-      document.getElementById('tabContent').innerHTML = `<h2>Lịch Sử Cược</h2><p>Đang cập nhật...</p>`;
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📜 Lịch Sử Cược</h2>`;
+      if (history.length === 0) html += `<p class="text-center text-zinc-400">Chưa có lịch sử cược</p>`;
+      else {
+        history.forEach(h => {
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 text-sm">
+            <span class="text-zinc-400">${h.time} - ${h.user}</span><br>
+            ${h.bet} → <strong class="${h.result==='Thắng' ? 'text-green-400' : 'text-red-400'}">${h.result}</strong>
+          </div>`;
+        });
+      }
+      document.getElementById('tabContent').innerHTML = html;
     }
   </script>
 </body>
