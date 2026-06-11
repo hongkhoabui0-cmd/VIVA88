@@ -11,7 +11,6 @@
                   url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; 
     }
     .card { background: rgba(15, 23, 42, 0.95); }
-    .member-bg { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.85)), url('https://picsum.photos/id/1015/1920/1080') center/cover; }
   </style>
 </head>
 <body class="text-white min-h-screen">
@@ -124,9 +123,9 @@
         </div>`;
     }
 
-    // ====================== THÀNH VIÊN (Giao diện đẹp riêng) ======================
+    // ====================== THÀNH VIÊN ======================
     function memberPanel() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-center text-amber-300">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
+      let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
       const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium","Vietnam","Thailand","Morocco","Senegal"];
 
       for (let i = 1; i <= 104; i++) {
@@ -134,7 +133,7 @@
         const t2 = teams[(i + 7) % teams.length];
         html += `
           <div class="match-card rounded-3xl p-5 mb-5 border border-sky-400/30">
-            <div class="text-sky-400 text-xs">#${i} - World Cup 2026</div>
+            <div class="text-sky-400 text-xs">#${i}</div>
             <div class="text-xl font-bold">${t1} vs ${t2}</div>
             <div class="grid grid-cols-3 gap-2 mt-4">
               <button onclick="placeBet('${t1} vs ${t2}', 'home', 1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà<br>1.85</button>
@@ -158,7 +157,7 @@
       saveData();
     }
 
-    // ====================== CÁC HÀM HỖ TRỢ ======================
+    // ====================== HÀM HỖ TRỢ ======================
     function createAgent() { 
       const name = prompt("Nhập tên Đại Lý mới:"); 
       if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("✅ Tạo Đại Lý thành công!"); } 
@@ -226,11 +225,11 @@
     }
 
     function showAIPrediction() {
-      alert("🤖 AI VIVA88 đang dự đoán kết quả 104 trận World Cup 2026...");
+      alert("🤖 AI VIVA88 đang dự đoán kết quả World Cup 2026...");
     }
 
     function resolveBets() {
-      alert("🏆 Chức năng Chỉnh sửa vé cược\n\nAdmin có thể xử lý kết quả vé cược của thành viên ở đây.");
+      alert("🏆 Chỉnh sửa vé cược\n\nChức năng này cho phép Admin xử lý kết quả vé cược của thành viên.");
     }
 
     window.onload = () => {};
