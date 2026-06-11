@@ -75,7 +75,7 @@
       let html = '';
 
       if (currentUser.role === 'admin') {
-        document.getElementById('title').innerHTML = `👑 Admin - ${currentUser.username}`;
+        document.getElementById('title').innerHTML = `👑 Admin - ${currentUser.username} (${data.adminPoints.toLocaleString()} đ)`;
         html = adminPanel();
       } else if (currentUser.role === 'agent') {
         document.getElementById('title').innerHTML = `👔 Đại Lý - ${currentUser.username}`;
@@ -95,8 +95,59 @@
           <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
           <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Đại Lý + Điểm</button>
           <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên + Điểm</button>
+          <button onclick="adminPumpWithdraw()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Điểm Đại Lý</button>
+          <button onclick="adminPumpWithdrawMember()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Điểm Thành Viên</button>
           <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán</button>
+          <button onclick="editBet()" class="w-full py-4 bg-violet-600 rounded-2xl">✏️ Chỉnh Sửa Vé Cược</button>
         </div>`;
+    }
+
+    function adminPumpWithdraw() {
+      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
+      const name = prompt("Nhập tên Đại Lý:");
+      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
+      if (!name || !amount) return;
+
+      let agent = data.agents.find(a => a.username === name);
+      if (!agent) return alert("Không tìm thấy Đại Lý!");
+
+      if (action === "nhap") {
+        if (data.adminPoints < amount) return alert("Admin không đủ điểm!");
+        data.adminPoints -= amount;
+        agent.points += amount;
+        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
+      } else {
+        if (agent.points < amount) return alert("Đại Lý không đủ điểm!");
+        data.adminPoints += amount;
+        agent.points -= amount;
+        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
+      }
+      saveData();
+      showAgents();
+    }
+
+    function adminPumpWithdrawMember() {
+      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
+      const name = prompt("Nhập tên Thành Viên:");
+      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
+      if (!name || !amount) return;
+
+      let member = data.members.find(m => m.username === name);
+      if (!member) return alert("Không tìm thấy Thành Viên!");
+
+      if (action === "nhap") {
+        if (data.adminPoints < amount) return alert("Admin không đủ điểm!");
+        data.adminPoints -= amount;
+        member.points += amount;
+        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
+      } else {
+        if (member.points < amount) return alert("Thành Viên không đủ điểm!");
+        data.adminPoints += amount;
+        member.points -= amount;
+        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
+      }
+      saveData();
+      showMembers();
     }
 
     // ====================== ĐẠI LÝ ======================
@@ -105,8 +156,30 @@
         <div class="card p-6 rounded-3xl space-y-4">
           <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
           <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên + Điểm</button>
+          <button onclick="agentPumpWithdraw()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Điểm Thành Viên</button>
           <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán</button>
         </div>`;
+    }
+
+    function agentPumpWithdraw() {
+      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
+      const name = prompt("Nhập tên Thành Viên:");
+      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
+      if (!name || !amount) return;
+
+      let member = data.members.find(m => m.username === name);
+      if (!member) return alert("Không tìm thấy Thành Viên!");
+
+      if (action === "nhap") {
+        member.points += amount;
+        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
+      } else {
+        if (member.points < amount) return alert("Thành Viên không đủ điểm!");
+        member.points -= amount;
+        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
+      }
+      saveData();
+      showMembers();
     }
 
     // ====================== THÀNH VIÊN ======================
@@ -131,52 +204,26 @@
       return html;
     }
 
-    // ====================== FUNCTIONS ======================
-    function createAgent() {
-      const name = prompt("Nhập tên Đại Lý mới:");
-      if (name) {
-        data.agents.push({username: name, points: 50000});
-        saveData();
-        alert("✅ Tạo Đại Lý thành công!");
-      }
-    }
-
-    function createMember() {
-      const name = prompt("Nhập tên Thành Viên mới:");
-      if (name) {
-        data.members.push({username: name, points: 50000});
-        saveData();
-        alert("✅ Tạo Thành Viên thành công!");
-      }
-    }
-
-    function showAgents() {
-      let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`;
-      if (data.agents.length === 0) html += `<p class="text-center text-zinc-400">Chưa có Đại Lý nào</p>`;
-      data.agents.forEach(a => {
-        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`;
-      });
-      document.getElementById('panel').innerHTML = html;
-    }
-
-    function showMembers() {
-      let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`;
-      if (data.members.length === 0) html += `<p class="text-center text-zinc-400">Chưa có Thành Viên nào</p>`;
-      data.members.forEach(m => {
-        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`;
-      });
-      document.getElementById('panel').innerHTML = html;
-    }
-
-    function showAIPrediction() {
-      alert("🤖 AI VIVA88 đang dự đoán kết quả World Cup 2026...");
-    }
-
     function placeBet(match, type, odds) {
       const amount = parseInt(prompt(`Đặt cược ${match}\nKèo: ${type === 'home' ? 'Nhà' : type === 'draw' ? 'Hòa' : 'Khách'}\nTỉ lệ: ${odds}\nNhập số điểm:`, "10000"));
       if (!amount || amount <= 0) return alert("Số điểm không hợp lệ!");
+
       alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}`);
+      if (Math.random() > 0.45) {
+        const win = Math.floor(amount * odds);
+        alert(`🎉 THẮNG! +${win.toLocaleString()} điểm`);
+      } else {
+        alert("😢 Thua cược.");
+      }
     }
+
+    // Các hàm còn lại
+    function createAgent() { const name = prompt("Nhập tên Đại Lý mới:"); if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("✅ Tạo Đại Lý thành công!"); } }
+    function createMember() { const name = prompt("Nhập tên Thành Viên mới:"); if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("✅ Tạo Thành Viên thành công!"); } }
+    function showAgents() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
+    function showMembers() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
+    function showAIPrediction() { alert("🤖 AI VIVA88 đang dự đoán kết quả World Cup 2026..."); }
+    function editBet() { alert("✏️ Chức năng chỉnh sửa vé cược\n\nBạn có thể chỉnh sửa vé cược của thành viên tại đây."); }
 
     window.onload = () => {};
   </script>
