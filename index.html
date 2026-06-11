@@ -56,7 +56,6 @@
 
     function logout() { location.reload(); }
 
-    // ADMIN
     function showAdmin() {
       document.getElementById('tabContent').innerHTML = `
         <h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel</h2>
@@ -77,20 +76,16 @@
 
     function showAgentsList() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Đại Lý + Điểm</h2>`;
-      if (agents.length === 0) {
-        html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
-      } else {
-        agents.forEach(a => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
-            <span>${a.username}</span>
-            <span class="text-yellow-400">${a.points.toLocaleString('vi-VN')} Điểm</span>
-          </div>`;
-        });
-      }
+      if (agents.length === 0) html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
+      else agents.forEach(a => {
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
+          <span>${a.username}</span>
+          <span class="text-yellow-400">${a.points.toLocaleString('vi-VN')} Điểm</span>
+        </div>`;
+      });
       document.getElementById('tabContent').innerHTML = html;
     }
 
-    // ĐẠI LÝ
     function showAgent() {
       document.getElementById('tabContent').innerHTML = `
         <h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
@@ -111,16 +106,13 @@
 
     function showMembersList() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Thành Viên + Điểm</h2>`;
-      if (members.length === 0) {
-        html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
-      } else {
-        members.forEach(m => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
-            <span>${m.username}</span>
-            <span class="text-yellow-400">${m.points.toLocaleString('vi-VN')} Điểm</span>
-          </div>`;
-        });
-      }
+      if (members.length === 0) html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
+      else members.forEach(m => {
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
+          <span>${m.username}</span>
+          <span class="text-yellow-400">${m.points.toLocaleString('vi-VN')} Điểm</span>
+        </div>`;
+      });
       document.getElementById('tabContent').innerHTML = html;
     }
 
