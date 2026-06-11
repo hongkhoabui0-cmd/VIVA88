@@ -3,53 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - AI Dự Đoán</title>
+  <title>VIVA88 - AI + API Bóng Đá</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen p-4">
   <div class="max-w-md mx-auto">
     <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
-    <h2 class="text-2xl font-bold text-center mb-8 text-sky-400">🤖 AI DỰ ĐOÁN BÓNG ĐÁ</h2>
+    <h2 class="text-2xl font-bold text-center mb-8 text-sky-400">🤖 AI + API Dự Đoán Bóng Đá</h2>
 
     <div id="content" class="space-y-6"></div>
   </div>
 
   <script>
-    const matches = [
-      {match: "Man City vs Liverpool", league: "Premier League Ảo"},
-      {match: "Real Madrid vs Barcelona", league: "La Liga Ảo"},
-      {match: "Bayern Munich vs Dortmund", league: "Bundesliga Ảo"},
-      {match: "Hà Nội vs TP.HCM", league: "V.League Ảo"},
-      {match: "Juventus vs Inter Milan", league: "Serie A Ảo"}
-    ];
+    const API_KEY = "YOUR_API_KEY_HERE"; // Thay bằng key thật của anh
 
+    async function loadMatches() {
+      const response = await fetch("https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all", {
+        headers: {
+          "x-rapidapi-key": API_KEY,
+          "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
+        }
+      });
+      const data = await response.json();
+      console.log(data); // Xem dữ liệu trong console
+      // Hiển thị dữ liệu...
+    }
+
+    // Tạm thời dùng mock
     function generatePrediction() {
+      const matches = ["Man City vs Liverpool", "Real Madrid vs Barcelona", "World Cup Qualifiers"];
       let html = '';
       matches.forEach(m => {
-        const prob = Math.floor(Math.random() * 35) + 50;
-        const suggestion = prob > 60 ? "Nên cược Thắng" : "Nên cược Hòa hoặc Thua";
-        
+        const prob = Math.floor(Math.random() * 35) + 55;
         html += `
           <div class="bg-zinc-900 p-6 rounded-3xl">
-            <div class="font-bold text-lg mb-2">${m.match}</div>
-            <div class="text-zinc-400 text-sm mb-4">${m.league}</div>
-            <button onclick="getPrediction(this)" class="w-full bg-sky-600 hover:bg-sky-500 py-4 rounded-2xl font-bold">
-              🤖 AI Dự Đoán Trận Này
-            </button>
+            <div class="font-bold">${m}</div>
+            <button onclick="getPrediction('${m}')" class="w-full mt-4 bg-sky-600 py-4 rounded-2xl font-bold">🤖 AI Dự Đoán</button>
           </div>`;
       });
       document.getElementById('content').innerHTML = html;
     }
 
-    function getPrediction(btn) {
-      const matchName = btn.parentElement.querySelector('.font-bold').textContent;
-      const prob = Math.floor(Math.random() * 35) + 50;
-      const suggestion = prob > 58 ? "Nên cược Thắng" : "Nên cược Hòa";
-
-      alert(`🤖 AI DỰ ĐOÁN\n\nTrận đấu: ${matchName}\nXác suất Thắng: ${prob}%\n\nGợi ý: ${suggestion}`);
+    function getPrediction(match) {
+      const prob = Math.floor(Math.random() * 35) + 55;
+      alert(`🤖 AI DỰ ĐOÁN\n\nTrận: ${match}\nXác suất Thắng: ${prob}%\nGợi ý: Nên cược Thắng!`);
     }
 
-    // Tự động chạy khi mở trang
     window.onload = generatePrediction;
   </script>
 </body>
