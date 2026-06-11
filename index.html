@@ -76,7 +76,7 @@
       let html = '';
 
       if (currentUser.role === 'admin') {
-        document.getElementById('title').innerHTML = `👑 Admin - ${currentUser.username}`;
+        document.getElementById('title').innerHTML = `👑 Admin - ${currentUser.username} (${data.adminPoints.toLocaleString()} đ)`;
         html = adminPanel();
       } else if (currentUser.role === 'agent') {
         document.getElementById('title').innerHTML = `👔 Đại Lý - ${currentUser.username}`;
@@ -88,7 +88,7 @@
       panel.innerHTML = html;
     }
 
-    // ====================== ADMIN ======================
+    // ====================== ADMIN PANEL ======================
     function adminPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
@@ -97,10 +97,11 @@
           <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Đại Lý + Điểm</button>
           <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên + Điểm</button>
           <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán</button>
+          <button onclick="editBet()" class="w-full py-4 bg-purple-600 rounded-2xl">✏️ Chỉnh Sửa Vé Cược</button>
         </div>`;
     }
 
-    // ====================== ĐẠI LÝ ======================
+    // ====================== ĐẠI LÝ PANEL ======================
     function agentPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
@@ -110,7 +111,7 @@
         </div>`;
     }
 
-    // ====================== THÀNH VIÊN (104 trận + kèo) ======================
+    // ====================== THÀNH VIÊN PANEL ======================
     function memberPanel() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
       const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium","Mexico","USA","Japan","South Korea","Vietnam","Thailand","Morocco","Senegal"];
@@ -120,19 +121,19 @@
         const t2 = teams[(i + 5) % teams.length];
         html += `
           <div class="match-card rounded-3xl p-5 mb-5 border border-sky-400/30">
-            <div class="text-sky-400 text-xs">#${i} - World Cup 2026</div>
-            <div class="text-xl font-bold mb-4">${t1} vs ${t2}</div>
-            <div class="grid grid-cols-3 gap-2">
-              <button onclick="placeBet('${t1} vs ${t2}', 'home', 1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà<br><span class="text-xs">1.85</span></button>
-              <button onclick="placeBet('${t1} vs ${t2}', 'draw', 3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa<br><span class="text-xs">3.40</span></button>
-              <button onclick="placeBet('${t1} vs ${t2}', 'away', 2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách<br><span class="text-xs">2.10</span></button>
+            <div class="text-sky-400 text-xs">#${i}</div>
+            <div class="text-xl font-bold">${t1} vs ${t2}</div>
+            <div class="grid grid-cols-3 gap-2 mt-4">
+              <button onclick="placeBet('${t1} vs ${t2}', 'home', 1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà<br>1.85</button>
+              <button onclick="placeBet('${t1} vs ${t2}', 'draw', 3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa<br>3.40</button>
+              <button onclick="placeBet('${t1} vs ${t2}', 'away', 2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách<br>2.10</button>
             </div>
           </div>`;
       }
       return html;
     }
 
-    // ====================== CÁC HÀM HỖ TRỢ ======================
+    // ====================== FUNCTIONS ======================
     function createAgent() {
       const name = prompt("Nhập tên Đại Lý mới:");
       if (name) {
@@ -154,7 +155,10 @@
     function showAgents() {
       let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`;
       data.agents.forEach(a => {
-        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`;
+        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between items-center">
+          <span>${a.username}</span>
+          <span class="text-yellow-400">${a.points.toLocaleString()} đ</span>
+        </div>`;
       });
       document.getElementById('panel').innerHTML = html;
     }
@@ -162,7 +166,10 @@
     function showMembers() {
       let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`;
       data.members.forEach(m => {
-        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`;
+        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between items-center">
+          <span>${m.username}</span>
+          <span class="text-yellow-400">${m.points.toLocaleString()} đ</span>
+        </div>`;
       });
       document.getElementById('panel').innerHTML = html;
     }
@@ -171,15 +178,19 @@
       alert("🤖 AI VIVA88 đang dự đoán kết quả World Cup 2026...");
     }
 
+    function editBet() {
+      alert("✏️ Chức năng chỉnh sửa vé cược\n\nBạn có thể chỉnh sửa vé cược của thành viên ở đây (đang phát triển thêm).");
+    }
+
     function placeBet(match, type, odds) {
-      const amount = parseInt(prompt(`Đặt cược cho ${match}\nKèo: ${type === 'home' ? 'Nhà' : type === 'draw' ? 'Hòa' : 'Khách'}\nTỉ lệ: ${odds}\nNhập số điểm:`, "10000"));
-      if (!amount || amount <= 0) return;
+      const amount = parseInt(prompt(`Đặt cược ${match}\nKèo: ${type === 'home' ? 'Nhà' : type === 'draw' ? 'Hòa' : 'Khách'}\nTỉ lệ: ${odds}\nNhập số điểm:`, "10000"));
+      if (!amount || amount <= 0) return alert("Số điểm không hợp lệ!");
 
-      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match} (${type})`);
+      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}`);
 
-      if (Math.random() > 0.48) {
+      if (Math.random() > 0.45) {
         const win = Math.floor(amount * odds);
-        alert(`🎉 THẮNG CƯỢC! +${win.toLocaleString()} điểm`);
+        alert(`🎉 THẮNG! +${win.toLocaleString()} điểm`);
       } else {
         alert("😢 Thua cược.");
       }
