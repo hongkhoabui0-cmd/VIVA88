@@ -3,23 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - World Cup 2026</title>
+  <title>VIVA88 - AI World Cup 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background: linear-gradient(135deg, #0f172a, #1e40af, #312e81); }
-    .match-card { transition: all 0.3s; }
-    .match-card:hover { transform: translateY(-4px); }
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a, #312e81);
+    }
+    .match-card {
+      background: linear-gradient(145deg, #1e2937, #334155);
+      transition: all 0.4s;
+    }
+    .match-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+    }
   </style>
 </head>
 <body class="text-white min-h-screen pb-12">
   <div class="max-w-md mx-auto px-4 py-8">
     <div class="text-center mb-10">
-      <h1 class="text-6xl font-black text-red-500">VIVA88</h1>
-      <p class="text-3xl text-sky-400 mt-2">WORLD CUP 2026</p>
-      <p class="text-amber-400 text-xl">🤖 AI DỰ ĐOÁN • <span id="count">104</span> TRẬN</p>
+      <h1 class="text-6xl font-black text-red-500 tracking-widest">VIVA88</h1>
+      <p class="text-3xl text-sky-400 font-semibold mt-1">WORLD CUP 2026</p>
+      <p class="text-amber-400 text-xl mt-2">🤖 AI DỰ ĐOÁN • 104 TRẬN</p>
     </div>
 
-    <div id="content" class="space-y-4"></div>
+    <div id="content" class="space-y-6"></div>
   </div>
 
   <script>
@@ -27,28 +35,38 @@
     const leagues = ["Vòng Bảng", "Vòng 16", "Tứ Kết", "Bán Kết", "Chung Kết"];
 
     for (let i = 1; i <= 104; i++) {
-      const league = leagues[Math.floor((i-1)/25)];
+      const leagueIndex = Math.floor((i-1)/25);
       allMatches.push({
         id: i,
-        match: `Trận ${i} - Đội A vs Đội B`,
-        league: league + " World Cup 2026"
+        match: `Trận ${i}`,
+        detail: `Đội ${String.fromCharCode(65 + (i % 8))} vs Đội ${String.fromCharCode(73 + (i % 8))}`,
+        league: leagues[leagueIndex] + " - World Cup 2026"
       });
     }
 
     function renderMatches() {
       let html = '';
       allMatches.forEach(m => {
+        const imgId = (m.id % 20) + 1; // random image 1-20
         html += `
-          <div class="match-card bg-zinc-900/80 border border-sky-500/30 rounded-3xl p-5">
-            <div class="flex justify-between text-xs text-sky-400 mb-2">
-              <span>#${m.id}</span>
-              <span>${m.league}</span>
+          <div class="match-card rounded-3xl overflow-hidden border border-sky-400/30">
+            <!-- Hình ảnh minh họa -->
+            <img src="https://picsum.photos/id/${imgId + 100}/600/200" 
+                 class="w-full h-40 object-cover" 
+                 alt="World Cup">
+            
+            <div class="p-5">
+              <div class="flex justify-between text-xs text-sky-400 mb-2">
+                <span>#${m.id}</span>
+                <span class="font-medium">${m.league}</span>
+              </div>
+              <div class="text-xl font-bold">${m.detail}</div>
+              
+              <button onclick="getPrediction('${m.detail}')" 
+                class="w-full mt-5 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:to-yellow-600 py-5 rounded-2xl font-bold text-lg shadow-xl">
+                🤖 AI DỰ ĐOÁN NGAY
+              </button>
             </div>
-            <div class="text-lg font-semibold">${m.match}</div>
-            <button onclick="getPrediction('${m.match}')" 
-              class="w-full mt-4 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 py-4 rounded-2xl font-bold">
-              🤖 AI DỰ ĐOÁN
-            </button>
           </div>`;
       });
       document.getElementById('content').innerHTML = html;
@@ -56,10 +74,9 @@
 
     function getPrediction(match) {
       const prob = Math.floor(Math.random() * 45) + 50;
-      alert(`🤖 AI VIVA88\n\n${match}\n\nXác suất thắng: ${prob}%\nGợi ý: Nên cược mạnh!`);
+      alert(`🤖 AI VIVA88 DỰ ĐOÁN\n\n${match}\n\nXác suất thắng: ${prob}%\n\n💡 Gợi ý: Nên cược mạnh!`);
     }
 
-    // Chạy ngay khi mở trang
     window.onload = renderMatches;
   </script>
 </body>
