@@ -52,7 +52,7 @@
     function login() {
       const username = document.getElementById('username').value.trim();
       const role = document.getElementById('role').value;
-      if (!username) return alert("Nhập tên!");
+      if (!username) return alert("Vui lòng nhập tên!");
 
       currentUser = { username, role };
 
@@ -84,7 +84,7 @@
         html = adminPanel();
       } else if (currentUser.role === 'agent') {
         document.getElementById('title').innerHTML = `👔 Đại Lý`;
-        html = agentPanel();
+        html = `<div class="card p-6 rounded-3xl">Đại Lý Panel (đang hoàn thiện)</div>`;
       } else {
         document.getElementById('title').innerHTML = `⚽ Thành Viên`;
         html = memberPanel();
@@ -95,22 +95,7 @@
     function adminPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createAgent()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý</button>
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
-          <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Đại Lý</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
-          <button onclick="adminPumpWithdraw('agent')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Đại Lý</button>
-          <button onclick="adminPumpWithdraw('member')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
-          <button onclick="resolveBets()" class="w-full py-4 bg-orange-600 rounded-2xl">🏆 Chỉnh Sửa Vé Cược</button>
-        </div>`;
-    }
-
-    function agentPanel() {
-      return `
-        <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
-          <button onclick="agentPumpWithdraw()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
+          <button onclick="resolveBets()" class="w-full py-5 bg-orange-600 rounded-2xl text-xl font-bold">🏆 Chỉnh Sửa Vé Cược</button>
         </div>`;
     }
 
@@ -152,65 +137,22 @@
       saveData();
     }
 
-    function adminPumpWithdraw(type) {
-      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
-      const name = prompt(`Nhập tên ${type === 'agent' ? 'Đại Lý' : 'Thành Viên'}:`);
-      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
-      if (!name || !amount) return;
-
-      let list = type === 'agent' ? data.agents : data.members;
-      let item = list.find(x => x.username === name);
-      if (!item) return alert("Không tìm thấy!");
-
-      if (action === "nhap") {
-        if (data.adminPoints < amount) return alert("Admin không đủ điểm!");
-        data.adminPoints -= amount;
-        item.points += amount;
-        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
-      } else {
-        if (item.points < amount) return alert("Không đủ điểm!");
-        data.adminPoints += amount;
-        item.points -= amount;
-        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
-      }
-      saveData();
-    }
-
-    function agentPumpWithdraw() {
-      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
-      const name = prompt("Nhập tên Thành Viên:");
-      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
-      if (!name || !amount) return;
-
-      let member = data.members.find(m => m.username === name);
-      if (!member) return alert("Không tìm thấy!");
-
-      if (action === "nhap") {
-        member.points += amount;
-        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
-      } else {
-        if (member.points < amount) return alert("Không đủ điểm!");
-        member.points -= amount;
-        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
-      }
-      saveData();
-    }
-
+    // Chỉnh sửa vé cược cho Admin
     function resolveBets() {
-      if (data.pendingBets.length === 0) return alert("Không có vé cược nào!");
+      if (data.pendingBets.length === 0) return alert("Không có vé cược nào đang chờ!");
 
       let msg = "Danh sách vé cược:\n\n";
       data.pendingBets.forEach((bet, i) => {
         msg += `${i+1}. ${bet.user} - ${bet.match} - ${bet.amount} điểm\n`;
       });
 
-      if (confirm(msg + "\nXử lý tất cả?")) {
+      if (confirm(msg + "\n\nXử lý tất cả vé?")) {
         let result = "Kết quả:\n\n";
         data.pendingBets.forEach(bet => {
-          const win = confirm(`Vé của ${bet.user} - ${bet.match}\nTHẮNG hay THUA? (OK = Thắng)`);
+          const win = confirm(`Vé của ${bet.user} - ${bet.match}\n\nTHẮNG hay THUA? (OK = Thắng)`);
           if (win) {
             const payout = Math.floor(bet.amount * bet.odds);
-            result += `${bet.user} THẮNG +${payout}\n`;
+            result += `${bet.user} THẮNG +${payout} điểm\n`;
             let m = data.members.find(x => x.username === bet.user);
             if (m) m.points += payout;
           } else {
@@ -222,11 +164,6 @@
         saveData();
       }
     }
-
-    function createAgent() { const name = prompt("Tên Đại Lý mới:"); if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("Tạo thành công!"); } }
-    function createMember() { const name = prompt("Tên Thành Viên mới:"); if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("Tạo thành công!"); } }
-    function showAgents() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
-    function showMembers() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
 
     window.onload = () => {};
   </script>
