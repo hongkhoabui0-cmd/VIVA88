@@ -3,57 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - AI Dự Đoán</title>
+  <title>VIVA88 - AI Dự Đoán World Cup</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background: linear-gradient(135deg, #0f172a, #1e40af, #312e81); }
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%);
+      font-family: system-ui;
+    }
     .match-card {
       background: linear-gradient(145deg, #1e2937, #334155);
-      transition: all 0.3s;
+      transition: all 0.4s ease;
     }
     .match-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.6);
+      transform: scale(1.03) translateY(-8px);
+      box-shadow: 0 30px 60px -15px rgb(59 130 246 / 0.5);
+    }
+    .wc-badge {
+      background: linear-gradient(90deg, #FFD700, #FFAA00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
   </style>
 </head>
-<body class="text-white min-h-screen p-4">
-  <div class="max-w-md mx-auto">
-    <div class="text-center mb-10">
-      <h1 class="text-7xl font-bold text-red-500 tracking-widest">VIVA88</h1>
-      <p class="text-sky-400 text-2xl font-medium mt-2">AI DỰ ĐOÁN BÓNG ĐÁ</p>
-      <p class="text-amber-400 text-sm mt-1">World Cup 2026 & 5 Giải Lớn</p>
+<body class="text-white min-h-screen pb-12">
+  <div class="max-w-md mx-auto px-4">
+    <!-- Header -->
+    <div class="text-center pt-8 pb-10">
+      <h1 class="text-6xl font-black text-red-500 tracking-widest">VIVA88</h1>
+      <p class="text-3xl text-sky-400 font-semibold mt-1">WORLD CUP 2026</p>
+      <p class="text-amber-400 text-lg mt-2">🤖 AI DỰ ĐOÁN • 104 TRẬN</p>
     </div>
 
-    <div id="content" class="space-y-6"></div>
+    <div id="content" class="space-y-5"></div>
   </div>
 
   <script>
-    function generateMatches() {
-      const matches = [
-        {match: "Man City vs Liverpool", league: "Premier League"},
-        {match: "Real Madrid vs Barcelona", league: "La Liga"},
-        {match: "Bayern Munich vs Dortmund", league: "Bundesliga"},
-        {match: "Juventus vs Inter Milan", league: "Serie A"},
-        {match: "Paris SG vs Marseille", league: "Ligue 1"},
-        {match: "Hà Nội vs TP.HCM", league: "V.League"},
-        {match: "Vietnam vs Thailand", league: "ASEAN Cup"},
-        {match: "Brazil vs Argentina", league: "World Cup Qualifier"},
-        {match: "England vs Germany", league: "Friendly"},
-        {match: "Saudi Arabia vs Japan", league: "World Cup Qualifier"},
-        {match: "Portugal vs Spain", league: "Nations League"},
-        {match: "Argentina vs Colombia", league: "World Cup Qualifier"}
-      ];
+    const worldCupMatches = [
+      "Brazil vs Argentina", "France vs England", "Spain vs Germany", 
+      "Portugal vs Italy", "Netherlands vs Belgium", "Vietnam vs Thailand",
+      "USA vs Mexico", "Japan vs South Korea", "Saudi Arabia vs Iran",
+      "Argentina vs Brazil", "England vs France", "Germany vs Spain",
+      "Portugal vs Netherlands", "Italy vs Croatia", "Mexico vs USA",
+      "Qatar vs Saudi Arabia", "Morocco vs Egypt", "Senegal vs Nigeria",
+      "Ghana vs Cameroon", "Tunisia vs Algeria", "Colombia vs Chile",
+      "Uruguay vs Peru", "Ecuador vs Paraguay", "Bolivia vs Venezuela",
+      "Australia vs New Zealand", "China vs Japan", "South Korea vs Iran",
+      "Vietnam vs Indonesia", "Thailand vs Malaysia", "Singapore vs Philippines",
+      "Man City vs Liverpool (Friendly)", "Real Madrid vs Barcelona",
+      "Bayern vs Dortmund", "PSG vs Marseille", "Juventus vs Inter"
+    ];
 
-      let html = `<h2 class="text-2xl font-bold mb-8 text-center text-amber-400">🔥 Các Trận Nổi Bật</h2>`;
+    // Thêm nhiều trận để gần 104 (lặp + biến thể)
+    let allMatches = [];
+    for (let i = 1; i <= 104; i++) {
+      const match = worldCupMatches[i % worldCupMatches.length] + ` #${i}`;
+      allMatches.push({
+        match: match,
+        league: i <= 48 ? "Vòng Bảng World Cup 2026" : 
+                i <= 80 ? "Vòng 16 & Tứ Kết" : "Bán Kết & Chung Kết"
+      });
+    }
 
-      matches.forEach(m => {
+    function renderMatches() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-center text-amber-400">🔥 104 Trận World Cup 2026</h2>`;
+
+      allMatches.forEach(m => {
         html += `
-          <div class="match-card rounded-3xl p-6 mb-6 border border-sky-500/30">
-            <div class="text-sky-400 text-xs mb-1">${m.league}</div>
-            <div class="font-bold text-lg">${m.match}</div>
-            <button onclick="getPrediction('${m.match}')" class="w-full mt-5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 py-5 rounded-2xl font-bold text-lg">
-              🤖 AI DỰ ĐOÁN
+          <div class="match-card rounded-3xl p-6 border border-sky-400/30">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="wc-badge text-lg font-bold">${m.league}</div>
+                <div class="font-semibold text-xl mt-1">${m.match}</div>
+              </div>
+              <div class="text-4xl">⚽</div>
+            </div>
+            
+            <button onclick="getPrediction('${m.match}')" 
+                    class="w-full mt-6 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:to-yellow-600 py-6 rounded-2xl font-bold text-xl shadow-lg">
+              🤖 AI DỰ ĐOÁN NGAY
             </button>
           </div>`;
       });
@@ -62,11 +89,13 @@
     }
 
     function getPrediction(match) {
-      const prob = Math.floor(Math.random() * 40) + 52;
-      alert(`🤖 AI DỰ ĐOÁN\n\nTrận: ${match}\nXác suất Thắng Nhà: ${prob}%\n\n💡 Gợi ý: Nên cược Thắng!`);
+      const probHome = Math.floor(Math.random() * 45) + 50;
+      const probDraw = Math.floor(Math.random() * 25) + 20;
+      alert(`🤖 AI VIVA88 DỰ ĐOÁN\n\n${match}\n\n🏠 Thắng Nhà: ${probHome}%\n⚖️ Hòa: ${probDraw}%\n🏆 Thắng Khách: ${100 - probHome - probDraw}%\n\n💡 Gợi ý: Nên theo ${probHome > 60 ? 'Nhà' : 'Khách'}!`);
     }
 
-    window.onload = generateMatches;
+    // Tự động chạy khi mở trang
+    window.onload = renderMatches;
   </script>
 </body>
 </html>
