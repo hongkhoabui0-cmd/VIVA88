@@ -93,13 +93,16 @@
 
     function showAgentsList() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Đại Lý + Điểm</h2>`;
-      if (agents.length === 0) html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
-      else agents.forEach(a => {
-        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
-          <span>${a.username}</span>
-          <span class="text-yellow-400">${a.points.toLocaleString('vi-VN')} Điểm</span>
-        </div>`;
-      });
+      if (agents.length === 0) {
+        html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
+      } else {
+        agents.forEach(a => {
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
+            <span>${a.username}</span>
+            <span class="text-yellow-400 font-bold">${a.points.toLocaleString('vi-VN')} Điểm</span>
+          </div>`;
+        });
+      }
       document.getElementById('tabContent').innerHTML = html;
     }
 
@@ -141,7 +144,7 @@
       const matches = ["Man City vs Liverpool", "Real Madrid vs Barcelona", "Hà Nội vs TP.HCM"];
       const match = matches[Math.floor(Math.random()*matches.length)];
       const prob = Math.floor(Math.random() * 35) + 50;
-      alert(`🤖 AI DỰ ĐOÁN\n\nTrận: ${match}\nXác suất Thắng: ${prob}%`);
+      alert(`🤖 AI DỰ ĐOÁN\nTrận: ${match}\nXác suất Thắng: ${prob}%`);
     }
 
     // ĐẠI LÝ
@@ -172,7 +175,7 @@
       else members.forEach(m => {
         html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
           <span>${m.username}</span>
-          <span class="text-yellow-400">${m.points.toLocaleString('vi-VN')} Điểm</span>
+          <span class="text-yellow-400 font-bold">${m.points.toLocaleString('vi-VN')} Điểm</span>
         </div>`;
       });
       document.getElementById('tabContent').innerHTML = html;
