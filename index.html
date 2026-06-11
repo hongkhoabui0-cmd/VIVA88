@@ -69,6 +69,7 @@
         <div class="space-y-4">
           <button onclick="createAgent()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Đại Lý Mới</button>
           <button onclick="showAgentsList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">Xem Danh Sách Đại Lý</button>
+          <button onclick="adminPumpPoints()" class="w-full bg-orange-600 py-6 rounded-3xl font-bold">Bơm / Rút Điểm Đại Lý</button>
           <button onclick="editBet()" class="w-full bg-purple-600 py-6 rounded-3xl font-bold">Chỉnh Sửa Vé Cược</button>
           <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
         </div>`;
@@ -87,12 +88,16 @@
     function showAgentsList() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Đại Lý</h2>`;
       if (agents.length === 0) html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
-      else {
-        agents.forEach(a => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${a.username}</div>`;
-        });
-      }
+      else agents.forEach(a => html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${a.username}</div>`);
       document.getElementById('tabContent').innerHTML = html;
+    }
+
+    function adminPumpPoints() {
+      const name = prompt("Nhập tên Đại Lý cần bơm/rút:");
+      const amount = parseInt(prompt("Nhập số điểm (dương = bơm, âm = rút):", "10000"));
+      if (name && amount) {
+        alert(`✅ Đã ${amount > 0 ? 'BƠM' : 'RÚT'} ${Math.abs(amount)} điểm cho Đại Lý ${name}`);
+      }
     }
 
     function editBet() {
@@ -105,6 +110,7 @@
         <div class="space-y-4">
           <button onclick="createMember()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Thành Viên Mới</button>
           <button onclick="showMembersList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">Xem Danh Sách Thành Viên</button>
+          <button onclick="agentPumpPoints()" class="w-full bg-orange-600 py-6 rounded-3xl font-bold">Bơm / Rút Điểm Thành Viên</button>
           <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
         </div>`;
       document.getElementById('tabContent').innerHTML = html;
@@ -122,12 +128,16 @@
     function showMembersList() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Thành Viên</h2>`;
       if (members.length === 0) html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
-      else {
-        members.forEach(m => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${m.username}</div>`;
-        });
-      }
+      else members.forEach(m => html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${m.username}</div>`);
       document.getElementById('tabContent').innerHTML = html;
+    }
+
+    function agentPumpPoints() {
+      const name = prompt("Nhập tên Thành Viên cần bơm/rút:");
+      const amount = parseInt(prompt("Nhập số điểm (dương = bơm, âm = rút):", "5000"));
+      if (name && amount) {
+        alert(`✅ Đã ${amount > 0 ? 'BƠM' : 'RÚT'} ${Math.abs(amount)} điểm cho Thành Viên ${name}`);
+      }
     }
 
     // ==================== THÀNH VIÊN ====================
@@ -145,7 +155,6 @@
         html += `
           <div class="bg-zinc-900 p-5 rounded-3xl mb-6">
             <h4 class="font-bold mb-3">${m.match}</h4>
-            <button onclick="aiPredict('${m.match}')" class="bg-blue-600 w-full py-3 rounded-2xl mb-4 font-bold">🤖 AI Dự Đoán</button>
             <div class="grid grid-cols-3 gap-3">
               <button onclick="bet(${m.home}, 'Thắng', '${m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
               <button onclick="bet(${m.draw}, 'Hòa', '${m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
@@ -163,11 +172,6 @@
       document.getElementById('tabContent').innerHTML = html;
     }
 
-    function aiPredict(match) {
-      const prob = Math.floor(Math.random() * 35) + 50;
-      alert(`🤖 AI DỰ ĐOÁN\n\nTrận: ${match}\nXác suất Thắng: ${prob}%\n\nGợi ý: Nên cược Thắng!`);
-    }
-
     function bet(odds, choice, match) {
       const amount = parseInt(prompt(`Cược ${choice} - ${match}\nTỉ lệ: ${odds}\nNhập số điểm:`, "1000"));
       if (!amount || isNaN(amount) || amount <= 0) return alert("❌ Số điểm không hợp lệ!");
@@ -180,8 +184,23 @@
       saveData();
     }
 
-    function playTaiXiu() { /* ... */ if (confirm("Chơi Tài Xỉu?")) { alert("Kết quả Tài Xỉu đã được ghi!"); history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Tài Xỉu", result: "Thắng"}); saveData(); }}
-    function playBanCa() { /* ... */ if (confirm("Chơi Bắn Cá?")) { alert("Kết quả Bắn Cá đã được ghi!"); history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Bắn Cá", result: "Thắng"}); saveData(); }}
+    function playTaiXiu() {
+      if (confirm("Chơi Tài Xỉu 5000 điểm?")) {
+        const win = Math.random() > 0.5;
+        alert(win ? "🎉 THẮNG Tài Xỉu!" : "😢 Thua Tài Xỉu");
+        history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Tài Xỉu", result: win ? "Thắng" : "Thua"});
+        saveData();
+      }
+    }
+
+    function playBanCa() {
+      if (confirm("Chơi Bắn Cá 3000 điểm?")) {
+        const win = Math.random() > 0.45;
+        alert(win ? "🎉 BẮN TRÚNG CÁ LỚN!" : "🐟 Bắn hụt...");
+        history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Bắn Cá", result: win ? "Thắng" : "Thua"});
+        saveData();
+      }
+    }
 
     function showHistory() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📜 Lịch Sử Cược</h2>`;
