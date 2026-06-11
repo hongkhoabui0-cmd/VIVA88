@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - AI World Cup 2026</title>
+  <title>VIVA88 - World Cup 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -16,6 +16,10 @@
     .match-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+    }
+    img {
+      height: 180px;
+      object-fit: cover;
     }
   </style>
 </head>
@@ -47,18 +51,16 @@
     function renderMatches() {
       let html = '';
       allMatches.forEach(m => {
-        const imgId = (m.id % 20) + 1; // random image 1-20
+        // Sử dụng hình ảnh từ picsum (đáng tin cậy)
+        const imgUrl = `https://picsum.photos/id/${(m.id % 50) + 100}/600/200`;
         html += `
           <div class="match-card rounded-3xl overflow-hidden border border-sky-400/30">
-            <!-- Hình ảnh minh họa -->
-            <img src="https://picsum.photos/id/${imgId + 100}/600/200" 
-                 class="w-full h-40 object-cover" 
-                 alt="World Cup">
+            <img src="${imgUrl}" alt="World Cup Match" class="w-full">
             
             <div class="p-5">
               <div class="flex justify-between text-xs text-sky-400 mb-2">
-                <span>#${m.id}</span>
-                <span class="font-medium">${m.league}</span>
+                <span class="font-bold">#${m.id}</span>
+                <span>${m.league}</span>
               </div>
               <div class="text-xl font-bold">${m.detail}</div>
               
