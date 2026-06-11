@@ -3,26 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - Cá Cược Điểm Ảo</title>
+  <title>VIVA88</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { 
-      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), 
-                  url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; 
-    }
-    .card { background: rgba(15, 23, 42, 0.95); }
+    body { background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; }
+    .card { background: rgba(15,23,42,0.95); }
   </style>
 </head>
 <body class="text-white min-h-screen">
-  <div class="max-w-md mx-auto p-4" id="app">
+  <div class="max-w-md mx-auto p-4">
 
-    <!-- LOGIN -->
-    <div id="loginScreen">
+    <div id="login">
       <div class="text-center py-12">
         <h1 class="text-6xl font-black text-red-500">VIVA88</h1>
-        <p class="text-sky-400 text-2xl mt-2">Cá Cược Điểm Ảo</p>
+        <p class="text-sky-400 text-2xl">Cá Cược Điểm Ảo</p>
       </div>
-      <input id="username" type="text" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4">
+      <input id="user" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4">
       <select id="role" class="w-full p-4 rounded-2xl bg-zinc-900 mb-6">
         <option value="member">Thành Viên</option>
         <option value="agent">Đại Lý</option>
@@ -31,172 +27,153 @@
       <button onclick="login()" class="w-full py-5 bg-red-600 rounded-2xl font-bold text-xl">ĐĂNG NHẬP</button>
     </div>
 
-    <!-- MAIN -->
-    <div id="mainScreen" class="hidden">
-      <div class="flex justify-between items-center mb-6">
+    <div id="main" class="hidden">
+      <div class="flex justify-between mb-6">
         <h1 id="title" class="text-3xl font-bold"></h1>
         <button onclick="logout()" class="px-6 py-2 bg-zinc-700 rounded-xl">Đăng xuất</button>
       </div>
-      <div id="panel" class="space-y-6"></div>
+      <div id="content"></div>
     </div>
   </div>
 
   <script>
-    let currentUser = null;
-    let data = JSON.parse(localStorage.getItem('viva88Data')) || {
-      adminPoints: 1000000000,
-      agents: [],
-      members: [],
-      pendingBets: []
-    };
+    let user = null;
+    let db = JSON.parse(localStorage.getItem('vivaDB')) || {adminPoints: 1000000000, agents: [], members: []};
 
-    function saveData() {
-      localStorage.setItem('viva88Data', JSON.stringify(data));
-    }
+    function save() { localStorage.setItem('vivaDB', JSON.stringify(db)); }
 
     function login() {
-      const username = document.getElementById('username').value.trim();
+      const name = document.getElementById('user').value.trim();
       const role = document.getElementById('role').value;
-      if (!username) return alert("Vui lòng nhập tên!");
+      if (!name) return alert("Nhập tên!");
 
-      currentUser = { username, role };
+      user = {name, role};
 
       if (role === 'member') {
-        let m = data.members.find(x => x.username === username);
+        let m = db.members.find(x => x.name === name);
         if (!m) {
-          m = {username, points: 50000};
-          data.members.push(m);
+          m = {name, points: 50000};
+          db.members.push(m);
         }
-        currentUser.points = m.points;
-        currentUser.memberData = m;
+        user.points = m.points;
+        user.data = m;
       }
 
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('mainScreen').classList.remove('hidden');
-      renderPanel();
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('main').classList.remove('hidden');
+      showScreen();
     }
 
     function logout() {
-      currentUser = null;
-      document.getElementById('mainScreen').classList.add('hidden');
-      document.getElementById('loginScreen').classList.remove('hidden');
+      user = null;
+      document.getElementById('main').classList.add('hidden');
+      document.getElementById('login').classList.remove('hidden');
     }
 
-    function renderPanel() {
-      const panel = document.getElementById('panel');
+    function showScreen() {
       let html = '';
-
-      if (currentUser.role === 'admin') {
-        document.getElementById('title').innerHTML = `👑 Admin - ${currentUser.username}`;
-        html = adminPanel();
-      } else if (currentUser.role === 'agent') {
-        document.getElementById('title').innerHTML = `👔 Đại Lý - ${currentUser.username}`;
-        html = agentPanel();
+      if (user.role === 'admin') {
+        document.getElementById('title').innerHTML = '👑 Admin';
+        html = `
+          <div class="card p-6 rounded-3xl space-y-4">
+            <button onclick="create('agent')" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý</button>
+            <button onclick="create('member')" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
+            <button onclick="list('agent')" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Đại Lý</button>
+            <button onclick="list('member')" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
+            <button onclick="napRut('agent')" class="w-full py-4 bg-purple-600 rounded-2xl">Nạp/Rút Đại Lý</button>
+            <button onclick="napRut('member')" class="w-full py-4 bg-purple-600 rounded-2xl">Nạp/Rút Thành Viên</button>
+          </div>`;
+      } else if (user.role === 'agent') {
+        document.getElementById('title').innerHTML = '👔 Đại Lý';
+        html = `
+          <div class="card p-6 rounded-3xl space-y-4">
+            <button onclick="create('member')" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
+            <button onclick="list('member')" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
+            <button onclick="napRut('member')" class="w-full py-4 bg-purple-600 rounded-2xl">Nạp/Rút Thành Viên</button>
+          </div>`;
       } else {
-        document.getElementById('title').innerHTML = `⚽ Thành Viên - ${currentUser.username}`;
-        html = memberPanel();
+        document.getElementById('title').innerHTML = '⚽ Thành Viên';
+        html = memberScreen();
       }
-      panel.innerHTML = html;
+      document.getElementById('content').innerHTML = html;
     }
 
-    // ====================== ADMIN ======================
-    function adminPanel() {
-      return `
-        <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createAgent()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý Mới</button>
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
-          <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Đại Lý</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên</button>
-          <button onclick="adminPumpWithdraw('agent')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Đại Lý</button>
-          <button onclick="adminPumpWithdraw('member')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
-          <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán</button>
-          <button onclick="resolvePendingBets()" class="w-full py-4 bg-orange-600 rounded-2xl">🏆 Chỉnh Sửa / Xử Lý Vé Cược</button>
-        </div>`;
+    function create(type) {
+      const name = prompt(`Nhập tên ${type === 'agent' ? 'Đại Lý' : 'Thành Viên'} mới:`);
+      if (!name) return;
+      if (type === 'agent') db.agents.push({name, points: 50000});
+      else db.members.push({name, points: 50000});
+      save();
+      alert("✅ Tạo thành công!");
     }
 
-    // ====================== ĐẠI LÝ ======================
-    function agentPanel() {
-      return `
-        <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên</button>
-          <button onclick="agentPumpWithdraw()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
-        </div>`;
+    function list(type) {
+      let html = `<h2 class="text-2xl font-bold mb-4">Danh sách ${type === 'agent' ? 'Đại Lý' : 'Thành Viên'}</h2>`;
+      let list = type === 'agent' ? db.agents : db.members;
+      list.forEach(item => {
+        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${item.name}</span><span class="text-yellow-400">${item.points.toLocaleString()} đ</span></div>`;
+      });
+      document.getElementById('content').innerHTML = html;
     }
 
-    // ====================== THÀNH VIÊN ======================
-    function memberPanel() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
-      const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium"];
+    function napRut(type) {
+      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
+      const name = prompt(`Nhập tên ${type === 'agent' ? 'Đại Lý' : 'Thành Viên'}:`);
+      const amount = parseInt(prompt("Số điểm:", "10000"));
+      if (!name || !amount) return;
 
-      for (let i = 1; i <= 104; i++) {
-        const t1 = teams[(i-1) % teams.length];
-        const t2 = teams[(i + 5) % teams.length];
+      let list = type === 'agent' ? db.agents : db.members;
+      let item = list.find(x => x.name === name);
+      if (!item) return alert("Không tìm thấy!");
+
+      if (action === "nhap") {
+        if (type === 'agent' && db.adminPoints < amount) return alert("Admin không đủ điểm!");
+        if (type === 'agent') db.adminPoints -= amount;
+        item.points += amount;
+        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
+      } else {
+        if (item.points < amount) return alert("Không đủ điểm!");
+        if (type === 'agent') db.adminPoints += amount;
+        item.points -= amount;
+        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
+      }
+      save();
+    }
+
+    function memberScreen() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026</h2>`;
+      const teams = ["Brazil","Argentina","France","England","Spain","Germany"];
+      for (let i = 1; i <= 20; i++) {
+        const t1 = teams[(i-1)%teams.length];
+        const t2 = teams[(i+2)%teams.length];
         html += `
-          <div class="match-card rounded-3xl p-5 mb-5 border border-sky-400/30">
-            <div class="text-sky-400 text-xs">#${i}</div>
-            <div class="text-xl font-bold">${t1} vs ${t2}</div>
+          <div class="card rounded-3xl p-5 mb-4">
+            <div class="font-bold">${t1} vs ${t2}</div>
             <div class="grid grid-cols-3 gap-2 mt-4">
-              <button onclick="placeBet('${t1} vs ${t2}', 'home', 1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà<br>1.85</button>
-              <button onclick="placeBet('${t1} vs ${t2}', 'draw', 3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa<br>3.40</button>
-              <button onclick="placeBet('${t1} vs ${t2}', 'away', 2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách<br>2.10</button>
+              <button onclick="bet(${i},1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà 1.85</button>
+              <button onclick="bet(${i},3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa 3.40</button>
+              <button onclick="bet(${i},2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách 2.10</button>
             </div>
           </div>`;
       }
-      return html + `<div class="text-center mt-8 text-3xl font-bold text-yellow-400">Điểm: ${currentUser.points.toLocaleString()} đ</div>`;
+      return html + `<div class="text-center text-3xl font-bold text-yellow-400 mt-6">Điểm: ${currentUser.points.toLocaleString()} đ</div>`;
     }
 
-    function placeBet(match, type, odds) {
-      const amount = parseInt(prompt(`Đặt cược ${match}\nKèo: ${type === 'home' ? 'Nhà' : type === 'draw' ? 'Hòa' : 'Khách'}\nTỉ lệ: ${odds}\nNhập số điểm:`, "10000"));
-      if (!amount || amount <= 0 || amount > currentUser.points) return alert("Số điểm không hợp lệ!");
+    function bet(id, odds) {
+      const amount = parseInt(prompt("Nhập số điểm cược:", "10000"));
+      if (!amount || amount > currentUser.points) return alert("Không đủ điểm!");
 
       currentUser.points -= amount;
       currentUser.memberData.points = currentUser.points;
 
-      data.pendingBets.push({
-        user: currentUser.username,
-        match: match,
-        type: type,
-        amount: amount,
-        odds: odds
-      });
-
-      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}. Chờ Admin xử lý kết quả!`);
-      renderPanel();
+      alert(`✅ Đã cược ${amount.toLocaleString()} điểm!`);
+      renderPanel();   // Cập nhật lại điểm
       saveData();
     }
 
-    // ====================== XỬ LÝ VÉ CƯỢC CHO ADMIN ======================
-    function resolvePendingBets() {
-      if (data.pendingBets.length === 0) return alert("Không có vé cược nào đang chờ!");
-
-      let result = "📋 XỬ LÝ VÉ CƯỢC\n\n";
-      data.pendingBets.forEach((bet, i) => {
-        const win = confirm(`Vé ${i+1}: ${bet.user} - ${bet.match} (${bet.type})\n\nThắng hay Thua? (OK = Thắng, Cancel = Thua)`);
-        if (win) {
-          const payout = Math.floor(bet.amount * bet.odds);
-          result += `${bet.user} - ${bet.match} : THẮNG +${payout} đ\n`;
-          let member = data.members.find(m => m.username === bet.user);
-          if (member) member.points += payout;
-        } else {
-          result += `${bet.user} - ${bet.match} : THUA\n`;
-        }
-      });
-
-      alert(result);
-      data.pendingBets = [];
-      saveData();
-      alert("✅ Đã xử lý xong tất cả vé cược!");
+    function renderPanel() {
+      showScreen(); // Refresh màn hình
     }
-
-    // Các hàm khác
-    function createAgent() { const name = prompt("Nhập tên Đại Lý mới:"); if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("✅ Tạo Đại Lý thành công!"); } }
-    function createMember() { const name = prompt("Nhập tên Thành Viên mới:"); if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("✅ Tạo Thành Viên thành công!"); } }
-    function showAgents() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
-    function showMembers() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
-    function adminPumpWithdraw(type) { alert("💰 Chức năng Nạp/Rút đang hoạt động!"); }
-    function agentPumpWithdraw() { alert("💰 Chức năng Nạp/Rút Thành Viên đang hoạt động!"); }
-    function showAIPrediction() { alert("🤖 AI VIVA88 đang dự đoán kết quả World Cup 2026..."); }
 
     window.onload = () => {};
   </script>
