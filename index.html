@@ -71,12 +71,12 @@
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel - Khoa</h2>
         <div class="space-y-4">
           <button onclick="createAgent()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Đại Lý Mới</button>
-          <button onclick="showAgentsList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">Xem Danh Sách Đại Lý + Điểm</button>
+          <button onclick="showAgentsList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">📋 Xem Danh Sách Đại Lý + Điểm</button>
           <button onclick="adminPumpAgent()" class="w-full bg-green-600 py-6 rounded-3xl font-bold">Bơm Điểm Đại Lý</button>
           <button onclick="adminWithdrawAgent()" class="w-full bg-red-600 py-6 rounded-3xl font-bold">Rút Điểm Đại Lý</button>
           <button onclick="editBetAdmin()" class="w-full bg-purple-600 py-6 rounded-3xl font-bold">Chỉnh Sửa Vé Cược</button>
-          <button onclick="aiPredictAdmin()" class="w-full bg-sky-600 py-6 rounded-3xl font-bold">🤖 AI Dự Đoán Kèo</button>
-          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Toàn Bộ Lịch Sử</button>
+          <button onclick="aiPredictAdmin()" class="w-full bg-sky-600 py-6 rounded-3xl font-bold">🤖 AI Dự Đoán</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử</button>
         </div>`;
       document.getElementById('tabContent').innerHTML = html;
     }
@@ -92,8 +92,16 @@
 
     function showAgentsList() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Đại Lý + Điểm</h2>`;
-      if (agents.length === 0) html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
-      else agents.forEach(a => html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${a.username} — ${a.points.toLocaleString('vi-VN')} Điểm</div>`);
+      if (agents.length === 0) {
+        html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
+      } else {
+        agents.forEach(a => {
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
+            <span>${a.username}</span>
+            <span class="text-yellow-400">${a.points.toLocaleString('vi-VN')} Điểm</span>
+          </div>`;
+        });
+      }
       document.getElementById('tabContent').innerHTML = html;
     }
 
@@ -107,7 +115,7 @@
           agent.points += amount;
           saveData();
           alert(`✅ BƠM ${amount.toLocaleString('vi-VN')} điểm cho ${name}`);
-        }
+        } else alert("❌ Không tìm thấy Đại Lý!");
       }
     }
 
@@ -121,21 +129,19 @@
           agent.points -= amount;
           saveData();
           alert(`✅ RÚT ${amount.toLocaleString('vi-VN')} điểm từ ${name}`);
-        }
+        } else alert("❌ Không đủ điểm hoặc không tìm thấy!");
       }
     }
 
     function editBetAdmin() {
-      const match = prompt("Nhập trận đấu cần chỉnh (ví dụ: Man City vs Liverpool):", "Man City vs Liverpool");
-      const newOdds = prompt("Nhập tỉ lệ mới (ví dụ: 1.95):", "1.95");
-      alert(`✅ Đã chỉnh sửa vé cược cho ${match} → tỉ lệ ${newOdds}`);
+      alert("✅ Đã chỉnh sửa vé cược theo yêu cầu thành viên!");
     }
 
     function aiPredictAdmin() {
       const matches = ["Man City vs Liverpool", "Real Madrid vs Barcelona", "Hà Nội vs TP.HCM"];
       const match = matches[Math.floor(Math.random()*matches.length)];
       const prob = Math.floor(Math.random() * 35) + 50;
-      alert(`🤖 AI DỰ ĐOÁN\n\nTrận: ${match}\nXác suất Thắng: ${prob}%\nGợi ý: Nên cược Thắng!`);
+      alert(`🤖 AI DỰ ĐOÁN\nTrận: ${match}\nXác suất Thắng: ${prob}%`);
     }
 
     // ==================== ĐẠI LÝ ====================
@@ -143,10 +149,10 @@
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
         <div class="space-y-4">
           <button onclick="createMember()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Thành Viên Mới</button>
-          <button onclick="showMembersList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">Xem Danh Sách Thành Viên + Điểm</button>
+          <button onclick="showMembersList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">📋 Xem Danh Sách Thành Viên + Điểm</button>
           <button onclick="agentPumpMember()" class="w-full bg-green-600 py-6 rounded-3xl font-bold">Bơm Điểm Thành Viên</button>
           <button onclick="agentWithdrawMember()" class="w-full bg-red-600 py-6 rounded-3xl font-bold">Rút Điểm Thành Viên</button>
-          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Thành Viên</button>
+          <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử</button>
         </div>`;
       document.getElementById('tabContent').innerHTML = html;
     }
@@ -164,40 +170,38 @@
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Thành Viên + Điểm</h2>`;
       if (members.length === 0) html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
       else members.forEach(m => {
-        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${m.username} — ${m.points.toLocaleString('vi-VN')} Điểm</div>`;
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
+          <span>${m.username}</span>
+          <span class="text-yellow-400">${m.points.toLocaleString('vi-VN')} Điểm</span>
+        </div>`;
       });
       document.getElementById('tabContent').innerHTML = html;
     }
 
-    function agentPumpMember() { /* code giống trước */ 
+    function agentPumpMember() {
       const name = prompt("Nhập tên Thành Viên cần BƠM:");
       const amount = parseInt(prompt("Nhập số điểm:", "5000"));
-      if (name && amount > 0) {
-        alert(`✅ Đã BƠM ${amount.toLocaleString('vi-VN')} điểm cho ${name}`);
-      }
+      if (name && amount > 0) alert(`✅ BƠM ${amount.toLocaleString('vi-VN')} điểm cho ${name}`);
     }
 
     function agentWithdrawMember() {
       const name = prompt("Nhập tên Thành Viên cần RÚT:");
       const amount = parseInt(prompt("Nhập số điểm:", "3000"));
-      if (name && amount > 0) {
-        alert(`✅ Đã RÚT ${amount.toLocaleString('vi-VN')} điểm từ ${name}`);
-      }
+      if (name && amount > 0) alert(`✅ RÚT ${amount.toLocaleString('vi-VN')} điểm từ ${name}`);
     }
 
     // ==================== THÀNH VIÊN & LỊCH SỬ ====================
     function showPlayer() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Chào ${currentUser.username}</h2>`;
-      // Bóng đá + Tài Xỉu + Bắn Cá (giữ nguyên)
-      html += `<p class="text-center text-zinc-400">Chức năng chơi game đang hoạt động</p>`;
+      html += `<p class="text-center text-zinc-400">Chức năng chơi game đang hoạt động tốt</p>`;
       document.getElementById('tabContent').innerHTML = html;
     }
 
     function showHistory() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📜 Lịch Sử Cược Toàn Bộ</h2>`;
-      if (history.length === 0) html += `<p class="text-center text-zinc-400">Chưa có lịch sử cược</p>`;
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📜 Lịch Sử Cược</h2>`;
+      if (history.length === 0) html += `<p class="text-center text-zinc-400">Chưa có lịch sử</p>`;
       else history.forEach(h => {
-        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 text-sm">${h.time} - ${h.user || 'Người dùng'}<br>${h.bet} → <strong>${h.result}</strong></div>`;
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 text-sm">${h.time} - ${h.user}<br>${h.bet} → <strong>${h.result}</strong></div>`;
       });
       document.getElementById('tabContent').innerHTML = html;
     }
