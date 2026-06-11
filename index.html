@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88</title>
+  <title>VIVA88 - Cá Cược Điểm Ảo</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
-    body { background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; }
-    .card { background: rgba(15,23,42,0.95); }
+    body { 
+      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), 
+                  url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; 
+    }
+    .card { background: rgba(15, 23, 42, 0.95); }
   </style>
 </head>
 <body class="text-white min-h-screen">
@@ -22,7 +22,7 @@
         <h1 class="text-6xl font-black text-red-500">VIVA88</h1>
         <p class="text-sky-400 text-2xl mt-2">Cá Cược Điểm Ảo</p>
       </div>
-      <input id="username" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4">
+      <input id="username" type="text" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4">
       <select id="role" class="w-full p-4 rounded-2xl bg-zinc-900 mb-6">
         <option value="member">Thành Viên</option>
         <option value="agent">Đại Lý</option>
@@ -33,30 +33,26 @@
 
     <!-- MAIN -->
     <div id="mainScreen" class="hidden">
-      <div class="flex justify-between mb-6">
+      <div class="flex justify-between items-center mb-6">
         <h1 id="title" class="text-3xl font-bold"></h1>
         <button onclick="logout()" class="px-6 py-2 bg-zinc-700 rounded-xl">Đăng xuất</button>
       </div>
-      <div id="panel"></div>
+      <div id="panel" class="space-y-6"></div>
     </div>
   </div>
 
   <script>
-    // === FIREBASE CONFIG CỦA BẠN ===
-    const firebaseConfig = {
-      apiKey: "AIzaSyCxNaNaL8Hj-619c_uUy0Tsew-guUcFKqg",
-      authDomain: "viva88-bedde.firebaseapp.com",
-      projectId: "viva88-bedde",
-      storageBucket: "viva88-bedde.firebasestorage.app",
-      messagingSenderId: "733789435616",
-      appId: "1:733789435616:web:4c4def7b0a5f6bf2eb4285",
-      measurementId: "G-ZJRXLZ8N02"
+    let currentUser = null;
+    let data = JSON.parse(localStorage.getItem('viva88Data')) || {
+      adminPoints: 1000000000,
+      agents: [],
+      members: [],
+      pendingBets: []
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let currentUser = null;
+    function saveData() {
+      localStorage.setItem('viva88Data', JSON.stringify(data));
+    }
 
     function login() {
       const username = document.getElementById('username').value.trim();
@@ -64,6 +60,17 @@
       if (!username) return alert("Vui lòng nhập tên!");
 
       currentUser = { username, role };
+
+      if (role === 'member') {
+        let member = data.members.find(m => m.username === username);
+        if (!member) {
+          member = {username: username, points: 50000};
+          data.members.push(member);
+        }
+        currentUser.points = member.points;
+        currentUser.memberData = member;
+      }
+
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainScreen').classList.remove('hidden');
       renderPanel();
@@ -76,27 +83,29 @@
     }
 
     function renderPanel() {
+      const panel = document.getElementById('panel');
       let html = '';
+
       if (currentUser.role === 'admin') {
-        document.getElementById('title').innerHTML = `👑 Admin`;
+        document.getElementById('title').innerHTML = `👑 Admin - ${currentUser.username}`;
         html = adminPanel();
       } else if (currentUser.role === 'agent') {
-        document.getElementById('title').innerHTML = `👔 Đại Lý`;
+        document.getElementById('title').innerHTML = `👔 Đại Lý - ${currentUser.username}`;
         html = agentPanel();
       } else {
-        document.getElementById('title').innerHTML = `⚽ Thành Viên`;
+        document.getElementById('title').innerHTML = `⚽ Thành Viên - ${currentUser.username}`;
         html = memberPanel();
       }
-      document.getElementById('panel').innerHTML = html;
+      panel.innerHTML = html;
     }
 
     function adminPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createAgent()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý</button>
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
-          <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Đại Lý</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
+          <button onclick="createAgent()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý Mới</button>
+          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
+          <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Đại Lý</button>
+          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên</button>
           <button onclick="resolveBets()" class="w-full py-4 bg-orange-600 rounded-2xl">🏆 Chỉnh Sửa Vé Cược</button>
         </div>`;
     }
@@ -104,42 +113,75 @@
     function agentPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
+          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
+          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên</button>
         </div>`;
     }
 
     function memberPanel() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
-      const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium"];
+      const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium","Vietnam","Thailand","Morocco","Senegal"];
+
       for (let i = 1; i <= 104; i++) {
-        const t1 = teams[(i-1)%teams.length];
-        const t2 = teams[(i+3)%teams.length];
+        const t1 = teams[(i-1) % teams.length];
+        const t2 = teams[(i + 7) % teams.length];
         html += `
-          <div class="card rounded-3xl p-5 mb-4">
-            <div class="font-bold">${t1} vs ${t2}</div>
+          <div class="match-card rounded-3xl p-5 mb-5 border border-sky-400/30">
+            <div class="text-sky-400 text-xs">#${i}</div>
+            <div class="text-xl font-bold">${t1} vs ${t2}</div>
             <div class="grid grid-cols-3 gap-2 mt-4">
-              <button onclick="placeBet(${i},1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà 1.85</button>
-              <button onclick="placeBet(${i},3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa 3.40</button>
-              <button onclick="placeBet(${i},2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách 2.10</button>
+              <button onclick="placeBet('${t1} vs ${t2}', 'home', 1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà<br>1.85</button>
+              <button onclick="placeBet('${t1} vs ${t2}', 'draw', 3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa<br>3.40</button>
+              <button onclick="placeBet('${t1} vs ${t2}', 'away', 2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách<br>2.10</button>
             </div>
           </div>`;
       }
-      return html + `<div class="text-center text-3xl font-bold text-yellow-400 mt-6">Điểm: 50000 đ</div>`;
+      return html + `<div class="text-center mt-8 text-3xl font-bold text-yellow-400">Điểm: ${currentUser.points.toLocaleString()} đ</div>`;
     }
 
-    function placeBet(id, odds) {
-      const amount = parseInt(prompt("Nhập số điểm cược:", "10000"));
-      if (!amount) return;
-      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho trận ${id}`);
+    function placeBet(match, type, odds) {
+      const amount = parseInt(prompt(`Đặt cược ${match}\nKèo: ${type === 'home' ? 'Nhà' : type === 'draw' ? 'Hòa' : 'Khách'}\nTỉ lệ: ${odds}\nNhập số điểm:`, "10000"));
+      if (!amount || amount <= 0 || amount > currentUser.points) return alert("Số điểm không hợp lệ!");
+
+      currentUser.points -= amount;
+      currentUser.memberData.points = currentUser.points;
+
+      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}`);
+      renderPanel();
+      saveData();
     }
 
-    function createAgent() { alert("Tạo Đại Lý thành công!"); }
-    function createMember() { alert("Tạo Thành Viên thành công!"); }
-    function showAgents() { alert("Danh sách Đại Lý"); }
-    function showMembers() { alert("Danh sách Thành Viên"); }
-    function resolveBets() { alert("Chỉnh sửa vé cược - Danh sách vé đang chờ..."); }
-    function showAIPrediction() { alert("AI Dự Đoán..."); }
+    function resolveBets() {
+      if (data.pendingBets.length === 0) return alert("Không có vé cược nào đang chờ!");
+
+      let msg = "📋 DANH SÁCH VÉ CƯỢC:\n\n";
+      data.pendingBets.forEach((bet, i) => {
+        msg += `${i+1}. ${bet.user} - ${bet.match} - ${bet.amount} điểm\n`;
+      });
+
+      if (confirm(msg + "\nXử lý tất cả vé?")) {
+        let result = "KẾT QUẢ:\n\n";
+        data.pendingBets.forEach(bet => {
+          const win = confirm(`Vé của ${bet.user} - ${bet.match}\nTHẮNG hay THUA? (OK = Thắng)`);
+          if (win) {
+            const payout = Math.floor(bet.amount * bet.odds);
+            result += `${bet.user} THẮNG +${payout} điểm\n`;
+            let m = data.members.find(x => x.username === bet.user);
+            if (m) m.points += payout;
+          } else {
+            result += `${bet.user} THUA\n`;
+          }
+        });
+        alert(result);
+        data.pendingBets = [];
+        saveData();
+      }
+    }
+
+    function createAgent() { const name = prompt("Nhập tên Đại Lý mới:"); if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("✅ Tạo thành công!"); } }
+    function createMember() { const name = prompt("Nhập tên Thành Viên mới:"); if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("✅ Tạo thành công!"); } }
+    function showAgents() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
+    function showMembers() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
 
     window.onload = () => {};
   </script>
