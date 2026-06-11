@@ -11,7 +11,6 @@
                   url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; 
     }
     .card { background: rgba(15, 23, 42, 0.95); }
-    .match-card { background: rgba(15, 23, 42, 0.98); }
   </style>
 </head>
 <body class="text-white min-h-screen">
@@ -23,8 +22,8 @@
         <h1 class="text-6xl font-black text-red-500">VIVA88</h1>
         <p class="text-sky-400 text-2xl mt-2">Cá Cược Điểm Ảo</p>
       </div>
-      <input id="username" type="text" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4 text-lg">
-      <select id="role" class="w-full p-4 rounded-2xl bg-zinc-900 mb-6 text-lg">
+      <input id="username" type="text" placeholder="Tên đăng nhập" class="w-full p-4 rounded-2xl bg-zinc-900 mb-4">
+      <select id="role" class="w-full p-4 rounded-2xl bg-zinc-900 mb-6">
         <option value="member">Thành Viên</option>
         <option value="agent">Đại Lý</option>
         <option value="admin">Admin (Khoa)</option>
@@ -89,7 +88,7 @@
       panel.innerHTML = html;
     }
 
-    // ================== ADMIN PANEL ==================
+    // ====================== ADMIN ======================
     function adminPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
@@ -97,11 +96,11 @@
           <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
           <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Đại Lý + Điểm</button>
           <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên + Điểm</button>
-          <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán Bóng Đá</button>
+          <button onclick="showAIPrediction()" class="w-full py-4 bg-amber-600 rounded-2xl">🤖 AI Dự Đoán</button>
         </div>`;
     }
 
-    // ================== AGENT PANEL ==================
+    // ====================== ĐẠI LÝ ======================
     function agentPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
@@ -111,28 +110,29 @@
         </div>`;
     }
 
-    // ================== MEMBER PANEL (104 TRẬN) ==================
+    // ====================== THÀNH VIÊN (104 trận + kèo) ======================
     function memberPanel() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
-      
-      // Tạo 104 trận với tên đội thật
       const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium","Mexico","USA","Japan","South Korea","Vietnam","Thailand","Morocco","Senegal"];
-      
+
       for (let i = 1; i <= 104; i++) {
         const t1 = teams[(i-1) % teams.length];
         const t2 = teams[(i + 5) % teams.length];
         html += `
           <div class="match-card rounded-3xl p-5 mb-5 border border-sky-400/30">
-            <div class="text-sky-400 text-xs mb-1">#${i} - World Cup 2026</div>
-            <div class="text-xl font-bold">${t1} vs ${t2}</div>
-            <button onclick="placeBet('${t1} vs ${t2}')" 
-              class="w-full mt-4 py-4 bg-green-600 rounded-2xl font-bold">ĐẶT CƯỢC</button>
+            <div class="text-sky-400 text-xs">#${i} - World Cup 2026</div>
+            <div class="text-xl font-bold mb-4">${t1} vs ${t2}</div>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="placeBet('${t1} vs ${t2}', 'home', 1.85)" class="py-3 bg-green-600 rounded-xl text-sm">Nhà<br><span class="text-xs">1.85</span></button>
+              <button onclick="placeBet('${t1} vs ${t2}', 'draw', 3.4)" class="py-3 bg-yellow-600 rounded-xl text-sm">Hòa<br><span class="text-xs">3.40</span></button>
+              <button onclick="placeBet('${t1} vs ${t2}', 'away', 2.1)" class="py-3 bg-red-600 rounded-xl text-sm">Khách<br><span class="text-xs">2.10</span></button>
+            </div>
           </div>`;
       }
       return html;
     }
 
-    // Các hàm hỗ trợ
+    // ====================== CÁC HÀM HỖ TRỢ ======================
     function createAgent() {
       const name = prompt("Nhập tên Đại Lý mới:");
       if (name) {
@@ -153,13 +153,17 @@
 
     function showAgents() {
       let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`;
-      data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`);
+      data.agents.forEach(a => {
+        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`;
+      });
       document.getElementById('panel').innerHTML = html;
     }
 
     function showMembers() {
       let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`;
-      data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`);
+      data.members.forEach(m => {
+        html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`;
+      });
       document.getElementById('panel').innerHTML = html;
     }
 
@@ -167,15 +171,15 @@
       alert("🤖 AI VIVA88 đang dự đoán kết quả World Cup 2026...");
     }
 
-    function placeBet(match) {
-      const amount = parseInt(prompt(`Đặt cược cho ${match}\nNhập số điểm:`, "10000"));
+    function placeBet(match, type, odds) {
+      const amount = parseInt(prompt(`Đặt cược cho ${match}\nKèo: ${type === 'home' ? 'Nhà' : type === 'draw' ? 'Hòa' : 'Khách'}\nTỉ lệ: ${odds}\nNhập số điểm:`, "10000"));
       if (!amount || amount <= 0) return;
 
-      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}`);
+      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match} (${type})`);
 
-      if (Math.random() > 0.45) {
-        const win = Math.floor(amount * 1.8);
-        alert(`🎉 THẮNG! +${win.toLocaleString()} điểm`);
+      if (Math.random() > 0.48) {
+        const win = Math.floor(amount * odds);
+        alert(`🎉 THẮNG CƯỢC! +${win.toLocaleString()} điểm`);
       } else {
         alert("😢 Thua cược.");
       }
