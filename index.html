@@ -3,23 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - World Cup 2026</title>
+  <title>VIVA88 - AI World Cup 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #0f172a, #1e3a8a, #312e81);
+      background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)), 
+                  url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat fixed;
+      background-attachment: fixed;
     }
     .match-card {
-      background: linear-gradient(145deg, #1e2937, #334155);
+      background: rgba(15, 23, 42, 0.95);
       transition: all 0.4s;
     }
     .match-card:hover {
       transform: translateY(-8px);
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.8);
     }
     img {
-      height: 180px;
+      height: 190px;
       object-fit: cover;
+      width: 100%;
     }
   </style>
 </head>
@@ -51,11 +54,13 @@
     function renderMatches() {
       let html = '';
       allMatches.forEach(m => {
-        // Sử dụng hình ảnh từ picsum (đáng tin cậy)
-        const imgUrl = `https://picsum.photos/id/${(m.id % 50) + 100}/600/200`;
+        // Hình ảnh cầu thủ / bóng đá khác nhau cho mỗi trận
+        const imgId = 1000 + (m.id % 80);
+        const imgUrl = `https://picsum.photos/id/${imgId}/600/200`;
+        
         html += `
           <div class="match-card rounded-3xl overflow-hidden border border-sky-400/30">
-            <img src="${imgUrl}" alt="World Cup Match" class="w-full">
+            <img src="${imgUrl}" alt="Cầu thủ bóng đá">
             
             <div class="p-5">
               <div class="flex justify-between text-xs text-sky-400 mb-2">
