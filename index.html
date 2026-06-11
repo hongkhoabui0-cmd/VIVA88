@@ -16,7 +16,6 @@
       <select id="role" class="w-full p-4 rounded-2xl bg-zinc-800 mb-6 text-black">
         <option value="admin">Admin (Khoa)</option>
         <option value="agent">Đại lý</option>
-        <option value="player">Thành viên</option>
       </select>
       <button onclick="login()" class="w-full bg-green-600 py-5 rounded-3xl font-bold text-xl">Vào Website</button>
     </div>
@@ -50,8 +49,7 @@
       document.getElementById('userInfo').innerHTML = `<p class="text-green-400">Chào ${username} (${role})</p>`;
 
       if (role === 'admin') showAdmin();
-      else if (role === 'agent') showAgent();
-      else showPlayer();
+      else showAgent();
     }
 
     function logout() { location.reload(); }
@@ -60,7 +58,7 @@
       document.getElementById('tabContent').innerHTML = `
         <h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel</h2>
         <button onclick="createAgent()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold mb-4">Tạo Đại Lý Mới</button>
-        <button onclick="showAgentsList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">📋 Xem Danh Sách Đại Lý + Điểm</button>
+        <button onclick="showAgentsList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">📋 Xem Danh Sách Đại Lý</button>
       `;
     }
 
@@ -75,14 +73,13 @@
     }
 
     function showAgentsList() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Đại Lý + Điểm</h2>`;
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Đại Lý</h2>`;
       if (agents.length === 0) {
         html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
       } else {
         agents.forEach(a => {
           html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
-            <div class="font-medium">${a.username}</div>
-            <div class="text-yellow-400">${a.points.toLocaleString('vi-VN')} Điểm</div>
+            ${a.username} — <span class="text-yellow-400">${a.points} Điểm</span>
           </div>`;
         });
       }
@@ -93,7 +90,7 @@
       document.getElementById('tabContent').innerHTML = `
         <h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
         <button onclick="createMember()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold mb-4">Tạo Thành Viên Mới</button>
-        <button onclick="showMembersList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">📋 Xem Danh Sách Thành Viên + Điểm</button>
+        <button onclick="showMembersList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">📋 Xem Danh Sách Thành Viên</button>
       `;
     }
 
@@ -108,22 +105,17 @@
     }
 
     function showMembersList() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Thành Viên + Điểm</h2>`;
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Thành Viên</h2>`;
       if (members.length === 0) {
         html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
       } else {
         members.forEach(m => {
           html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
-            <div class="font-medium">${m.username}</div>
-            <div class="text-yellow-400">${m.points.toLocaleString('vi-VN')} Điểm</div>
+            ${m.username} — <span class="text-yellow-400">${m.points} Điểm</span>
           </div>`;
         });
       }
       document.getElementById('tabContent').innerHTML = html;
-    }
-
-    function showPlayer() {
-      document.getElementById('tabContent').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Chào Thành Viên</h2><p class="text-center">Chức năng chơi game đang hoạt động</p>`;
     }
   </script>
 </body>
