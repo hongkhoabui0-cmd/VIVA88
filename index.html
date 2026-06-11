@@ -63,16 +63,12 @@
 
     function logout() { location.reload(); }
 
-    function updatePoints() {
-      document.getElementById('pointsDisplay').textContent = "50.000 Điểm";
-    }
-
     // ==================== ADMIN ====================
     function showAdmin() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">👑 Admin Panel - Khoa</h2>
         <div class="space-y-4">
           <button onclick="createAgent()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Đại Lý Mới</button>
-          <button onclick="adminAdjustPoints()" class="w-full bg-orange-600 py-6 rounded-3xl font-bold">Chỉnh Điểm Thành Viên / Đại Lý</button>
+          <button onclick="showAgentsList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">Xem Danh Sách Đại Lý</button>
           <button onclick="editBet()" class="w-full bg-purple-600 py-6 rounded-3xl font-bold">Chỉnh Sửa Vé Cược</button>
           <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
         </div>`;
@@ -88,12 +84,19 @@
       }
     }
 
-    function adminAdjustPoints() {
-      alert("✅ Đã chỉnh điểm thành công (mock - có thể mở rộng sau)");
+    function showAgentsList() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Đại Lý</h2>`;
+      if (agents.length === 0) html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
+      else {
+        agents.forEach(a => {
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${a.username}</div>`;
+        });
+      }
+      document.getElementById('tabContent').innerHTML = html;
     }
 
     function editBet() {
-      alert("✅ Đã chỉnh sửa vé cược theo yêu cầu thành viên!");
+      alert("✅ Đã chỉnh sửa vé cược theo yêu cầu!");
     }
 
     // ==================== ĐẠI LÝ ====================
@@ -101,7 +104,7 @@
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Đại Lý Panel</h2>
         <div class="space-y-4">
           <button onclick="createMember()" class="w-full bg-indigo-600 py-6 rounded-3xl font-bold">Tạo Thành Viên Mới</button>
-          <button onclick="agentAdjustPoints()" class="w-full bg-orange-600 py-6 rounded-3xl font-bold">Bơm / Rút Điểm Thành Viên</button>
+          <button onclick="showMembersList()" class="w-full bg-blue-600 py-6 rounded-3xl font-bold">Xem Danh Sách Thành Viên</button>
           <button onclick="showHistory()" class="w-full bg-teal-600 py-6 rounded-3xl font-bold">Xem Lịch Sử Cược</button>
         </div>`;
       document.getElementById('tabContent').innerHTML = html;
@@ -116,14 +119,21 @@
       }
     }
 
-    function agentAdjustPoints() {
-      alert("✅ Bơm / Rút điểm thành công!");
+    function showMembersList() {
+      let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📋 Danh Sách Thành Viên</h2>`;
+      if (members.length === 0) html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
+      else {
+        members.forEach(m => {
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">${m.username}</div>`;
+        });
+      }
+      document.getElementById('tabContent').innerHTML = html;
     }
 
     // ==================== THÀNH VIÊN ====================
     function showPlayer() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">Chào ${currentUser.username}</h2>`;
-
+      
       html += `<h3 class="font-bold mb-4">⚽ Bóng Đá Ảo</h3>`;
       const matches = [
         {match: "Man City vs Liverpool", home:1.85, draw:3.6, away:4.1},
@@ -135,7 +145,7 @@
         html += `
           <div class="bg-zinc-900 p-5 rounded-3xl mb-6">
             <h4 class="font-bold mb-3">${m.match}</h4>
-            <button onclick="aiPredict('${m.match}')" class="bg-blue-600 w-full py-3 rounded-2xl mb-4 font-bold">🤖 AI Dự Đoán Kết Quả</button>
+            <button onclick="aiPredict('${m.match}')" class="bg-blue-600 w-full py-3 rounded-2xl mb-4 font-bold">🤖 AI Dự Đoán</button>
             <div class="grid grid-cols-3 gap-3">
               <button onclick="bet(${m.home}, 'Thắng', '${m.match}')" class="bg-green-600 py-6 rounded-2xl font-bold">${m.home}</button>
               <button onclick="bet(${m.draw}, 'Hòa', '${m.match}')" class="bg-yellow-600 py-6 rounded-2xl font-bold">${m.draw}</button>
@@ -147,7 +157,6 @@
       html += `
         <h3 class="font-bold mb-4 mt-8">🎲 Tài Xỉu</h3>
         <button onclick="playTaiXiu()" class="w-full bg-purple-600 py-8 rounded-3xl font-bold mb-6">Chơi Tài Xỉu</button>
-
         <h3 class="font-bold mb-4">🐟 Bắn Cá</h3>
         <button onclick="playBanCa()" class="w-full bg-cyan-600 py-8 rounded-3xl font-bold">Bắn Cá</button>`;
 
@@ -164,52 +173,22 @@
       if (!amount || isNaN(amount) || amount <= 0) return alert("❌ Số điểm không hợp lệ!");
 
       const win = Math.random() > 0.5;
-      if (win) {
-        const winAmount = Math.round(amount * odds);
-        alert(`🎉 THẮNG! +${winAmount} điểm`);
-      } else {
-        alert("😢 Thua. Thử lại lần sau!");
-      }
+      if (win) alert(`🎉 THẮNG! +${Math.round(amount * odds)} điểm`);
+      else alert("😢 Thua. Thử lại!");
 
-      history.unshift({
-        time: new Date().toLocaleTimeString('vi-VN'),
-        user: currentUser.username,
-        bet: `${match} - ${choice} ${amount}đ`,
-        result: win ? "Thắng" : "Thua"
-      });
+      history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: `${match} - ${choice}`, result: win ? "Thắng" : "Thua"});
       saveData();
     }
 
-    function playTaiXiu() {
-      if (confirm("Cược 5000 điểm cho Tài Xỉu?")) {
-        const win = Math.random() > 0.5;
-        if (win) alert("🎉 TÀI/XỈU - THẮNG +10.000 điểm!");
-        else alert("😢 Thua Tài Xỉu");
-        history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Tài Xỉu 5000", result: win ? "Thắng" : "Thua"});
-        saveData();
-      }
-    }
-
-    function playBanCa() {
-      if (confirm("Cược 3000 điểm cho Bắn Cá?")) {
-        if (Math.random() > 0.45) alert("🎉 BẮN TRÚNG CÁ LỚN +15.000 điểm!");
-        else alert("🐟 Bắn hụt...");
-        history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Bắn Cá 3000", result: "Thắng"});
-        saveData();
-      }
-    }
+    function playTaiXiu() { /* ... */ if (confirm("Chơi Tài Xỉu?")) { alert("Kết quả Tài Xỉu đã được ghi!"); history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Tài Xỉu", result: "Thắng"}); saveData(); }}
+    function playBanCa() { /* ... */ if (confirm("Chơi Bắn Cá?")) { alert("Kết quả Bắn Cá đã được ghi!"); history.unshift({time: new Date().toLocaleTimeString('vi-VN'), user: currentUser.username, bet: "Bắn Cá", result: "Thắng"}); saveData(); }}
 
     function showHistory() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-orange-400">📜 Lịch Sử Cược</h2>`;
-      if (history.length === 0) html += `<p class="text-center text-zinc-400">Chưa có lịch sử cược</p>`;
-      else {
-        history.forEach(h => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 text-sm">
-            <span class="text-zinc-400">${h.time} - ${h.user}</span><br>
-            ${h.bet} → <strong class="${h.result==='Thắng' ? 'text-green-400' : 'text-red-400'}">${h.result}</strong>
-          </div>`;
-        });
-      }
+      if (history.length === 0) html += `<p class="text-center text-zinc-400">Chưa có lịch sử</p>`;
+      else history.forEach(h => {
+        html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 text-sm">${h.time} - ${h.user}<br>${h.bet} → <strong>${h.result}</strong></div>`;
+      });
       document.getElementById('tabContent').innerHTML = html;
     }
   </script>
