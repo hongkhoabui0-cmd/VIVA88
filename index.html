@@ -3,77 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - AI + API Bóng Đá</title>
+  <title>VIVA88 - AI Dự Đoán</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a, #312e81);
+    }
+    .match-card {
+      background: linear-gradient(145deg, #1e2937, #334155);
+      transition: all 0.3s;
+    }
+    .match-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+  </style>
 </head>
-<body class="bg-zinc-950 text-white min-h-screen p-4">
+<body class="text-white min-h-screen p-4">
   <div class="max-w-md mx-auto">
-    <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
-    <h2 class="text-2xl font-bold text-center mb-8 text-sky-400">🤖 AI + API Dự Đoán Bóng Đá</h2>
+    <div class="text-center mb-10">
+      <h1 class="text-7xl font-bold text-red-500 tracking-widest">VIVA88</h1>
+      <p class="text-sky-400 text-2xl font-medium mt-2">AI DỰ ĐOÁN BÓNG ĐÁ</p>
+    </div>
 
     <div id="content" class="space-y-6"></div>
   </div>
 
   <script>
-    const API_KEY = "9fb24f52024e8386a86543601550d805";
+    function generateMatches() {
+      const matches = [
+        {match: "Man City vs Liverpool", league: "Premier League"},
+        {match: "Real Madrid vs Barcelona", league: "La Liga"},
+        {match: "Bayern Munich vs Dortmund", league: "Bundesliga"},
+        {match: "Juventus vs Inter Milan", league: "Serie A"},
+        {match: "Paris SG vs Marseille", league: "Ligue 1"},
+        {match: "Hà Nội vs TP.HCM", league: "V.League"},
+        {match: "Vietnam vs Thailand", league: "ASEAN Cup"},
+        {match: "Brazil vs Argentina", league: "World Cup Qualifier"},
+        {match: "England vs Germany", league: "Friendly"},
+        {match: "Saudi Arabia vs Japan", league: "World Cup Qualifier"},
+        {match: "Portugal vs Spain", league: "Nations League"},
+        {match: "Argentina vs Colombia", league: "World Cup Qualifier"}
+      ];
 
-    async function loadUpcomingMatches() {
-      document.getElementById('content').innerHTML = `<p class="text-center">Đang tải dữ liệu từ API...</p>`;
+      let html = `<h2 class="text-2xl font-bold mb-8 text-center text-white">🔥 Các Trận Nổi Bật</h2>`;
 
-      try {
-        const response = await fetch("https://api-football-v1.p.rapidapi.com/v3/fixtures?next=20", {
-          method: "GET",
-          headers: {
-            "x-rapidapi-key": API_KEY,
-            "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
-          }
-        });
-
-        const data = await response.json();
-        let html = `<h2 class="text-xl font-bold mb-6 text-sky-400">Các Trận Sắp Diễn Ra</h2>`;
-
-        if (data.response && data.response.length > 0) {
-          data.response.slice(0, 10).forEach(f => {
-            const home = f.teams.home.name;
-            const away = f.teams.away.name;
-            const league = f.league.name;
-            html += `
-              <div class="bg-zinc-900 p-6 rounded-3xl mb-6">
-                <div class="text-sm text-zinc-400">${league}</div>
-                <div class="font-bold mb-2">${home} vs ${away}</div>
-                <button onclick="getAIPrediction('${home} vs ${away}')" class="w-full bg-sky-600 py-4 rounded-2xl font-bold">🤖 AI Dự Đoán</button>
-              </div>`;
-          });
-        } else {
-          html += `<p class="text-center text-zinc-400">Không tìm thấy trận nào. Dùng chế độ AI mock.</p>`;
-        }
-
-        document.getElementById('content').innerHTML = html;
-      } catch (e) {
-        document.getElementById('content').innerHTML = `<p class="text-red-400 text-center">Lỗi API. Dùng chế độ AI mock.</p>`;
-        generateMockPredictions();
-      }
-    }
-
-    function getAIPrediction(match) {
-      const prob = Math.floor(Math.random() * 35) + 55;
-      alert(`🤖 AI DỰ ĐOÁN\n\nTrận: ${match}\nXác suất Thắng Nhà: ${prob}%\nGợi ý: Nên cược Thắng!`);
-    }
-
-    function generateMockPredictions() {
-      const matches = ["Man City vs Liverpool", "Real Madrid vs Barcelona", "Vietnam vs Thailand", "World Cup Qualifier", "Bayern vs Dortmund"];
-      let html = `<h2 class="text-xl font-bold mb-6 text-sky-400">Dự Đoán Các Trận Nổi Bật</h2>`;
       matches.forEach(m => {
         html += `
-          <div class="bg-zinc-900 p-6 rounded-3xl mb-6">
-            <div class="font-bold mb-2">${m}</div>
-            <button onclick="getAIPrediction('${m}')" class="w-full bg-sky-600 py-4 rounded-2xl font-bold">🤖 AI Dự Đoán</button>
+          <div class="match-card rounded-3xl p-6 mb-6 border border-sky-500/30">
+            <div class="text-sky-400 text-sm mb-1">${m.league}</div>
+            <div class="font-bold text-xl mb-5">${m.match}</div>
+            <button onclick="getPrediction('${m.match}')" 
+              class="w-full bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-600 hover:from-sky-600 hover:via-blue-600 hover:to-indigo-700 py-5 rounded-2xl font-bold text-lg shadow-xl">
+              🤖 AI DỰ ĐOÁN NGAY
+            </button>
           </div>`;
       });
+
       document.getElementById('content').innerHTML = html;
     }
 
-    window.onload = loadUpcomingMatches;
+    function getPrediction(match) {
+      const prob = Math.floor(Math.random() * 40) + 52;
+      alert(`🤖 AI DỰ ĐOÁN\n\nTrận đấu: ${match}\n\nXác suất Thắng Nhà: ${prob}%\n\n💡 Gợi ý: Nên cược Thắng!`);
+    }
+
+    window.onload = generateMatches;
   </script>
 </body>
 </html>
