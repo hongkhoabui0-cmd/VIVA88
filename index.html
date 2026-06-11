@@ -11,7 +11,7 @@
     <h1 class="text-6xl font-bold text-red-500 text-center mb-8">VIVA88</h1>
 
     <div id="loginScreen" class="bg-zinc-900 rounded-3xl p-6">
-      <h2 class="text-2xl font-bold mb-6 text-center">Đăng Nhập VIVA88</h2>
+      <h2 class="text-2xl font-bold mb-6 text-center">Đăng Nhập</h2>
       <input id="username" value="Khoa" class="w-full p-4 rounded-2xl bg-zinc-800 mb-4 text-black">
       <select id="role" class="w-full p-4 rounded-2xl bg-zinc-800 mb-6 text-black">
         <option value="admin">Admin (Khoa)</option>
@@ -66,10 +66,10 @@
 
     function createAgent() {
       const name = prompt("Nhập tên Đại Lý mới:");
-      if (name && name.trim() !== "") {
-        agents.push({username: name.trim(), points: 50000});
+      if (name) {
+        agents.push({username: name, points: 50000});
         saveData();
-        alert(`✅ Tạo Đại Lý "${name}" thành công!`);
+        alert(`✅ Tạo "${name}" thành công!`);
         showAgentsList();
       }
     }
@@ -80,9 +80,9 @@
         html += `<p class="text-center text-zinc-400">Chưa có đại lý nào</p>`;
       } else {
         agents.forEach(a => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
-            <span>${a.username}</span>
-            <span class="text-yellow-400 font-bold">${a.points.toLocaleString('vi-VN')} Điểm</span>
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
+            <div class="font-medium">${a.username}</div>
+            <div class="text-yellow-400">${a.points.toLocaleString('vi-VN')} Điểm</div>
           </div>`;
         });
       }
@@ -99,10 +99,10 @@
 
     function createMember() {
       const name = prompt("Nhập tên Thành Viên mới:");
-      if (name && name.trim() !== "") {
-        members.push({username: name.trim(), points: 20000});
+      if (name) {
+        members.push({username: name, points: 20000});
         saveData();
-        alert(`✅ Tạo Thành Viên "${name}" thành công!`);
+        alert(`✅ Tạo "${name}" thành công!`);
         showMembersList();
       }
     }
@@ -113,9 +113,9 @@
         html += `<p class="text-center text-zinc-400">Chưa có thành viên nào</p>`;
       } else {
         members.forEach(m => {
-          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3 flex justify-between">
-            <span>${m.username}</span>
-            <span class="text-yellow-400 font-bold">${m.points.toLocaleString('vi-VN')} Điểm</span>
+          html += `<div class="bg-zinc-900 p-4 rounded-2xl mb-3">
+            <div class="font-medium">${m.username}</div>
+            <div class="text-yellow-400">${m.points.toLocaleString('vi-VN')} Điểm</div>
           </div>`;
         });
       }
