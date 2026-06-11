@@ -3,98 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVA88 - AI Dự Đoán World Cup</title>
+  <title>VIVA88 - World Cup 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%);
-      font-family: system-ui;
-    }
-    .match-card {
-      background: linear-gradient(145deg, #1e2937, #334155);
-      transition: all 0.4s ease;
-    }
-    .match-card:hover {
-      transform: scale(1.03) translateY(-8px);
-      box-shadow: 0 30px 60px -15px rgb(59 130 246 / 0.5);
-    }
-    .wc-badge {
-      background: linear-gradient(90deg, #FFD700, #FFAA00);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    body { background: linear-gradient(135deg, #0f172a, #1e40af, #312e81); }
+    .match-card { transition: all 0.3s; }
+    .match-card:hover { transform: translateY(-4px); }
   </style>
 </head>
 <body class="text-white min-h-screen pb-12">
-  <div class="max-w-md mx-auto px-4">
-    <!-- Header -->
-    <div class="text-center pt-8 pb-10">
-      <h1 class="text-6xl font-black text-red-500 tracking-widest">VIVA88</h1>
-      <p class="text-3xl text-sky-400 font-semibold mt-1">WORLD CUP 2026</p>
-      <p class="text-amber-400 text-lg mt-2">🤖 AI DỰ ĐOÁN • 104 TRẬN</p>
+  <div class="max-w-md mx-auto px-4 py-8">
+    <div class="text-center mb-10">
+      <h1 class="text-6xl font-black text-red-500">VIVA88</h1>
+      <p class="text-3xl text-sky-400 mt-2">WORLD CUP 2026</p>
+      <p class="text-amber-400 text-xl">🤖 AI DỰ ĐOÁN • <span id="count">104</span> TRẬN</p>
     </div>
 
-    <div id="content" class="space-y-5"></div>
+    <div id="content" class="space-y-4"></div>
   </div>
 
   <script>
-    const worldCupMatches = [
-      "Brazil vs Argentina", "France vs England", "Spain vs Germany", 
-      "Portugal vs Italy", "Netherlands vs Belgium", "Vietnam vs Thailand",
-      "USA vs Mexico", "Japan vs South Korea", "Saudi Arabia vs Iran",
-      "Argentina vs Brazil", "England vs France", "Germany vs Spain",
-      "Portugal vs Netherlands", "Italy vs Croatia", "Mexico vs USA",
-      "Qatar vs Saudi Arabia", "Morocco vs Egypt", "Senegal vs Nigeria",
-      "Ghana vs Cameroon", "Tunisia vs Algeria", "Colombia vs Chile",
-      "Uruguay vs Peru", "Ecuador vs Paraguay", "Bolivia vs Venezuela",
-      "Australia vs New Zealand", "China vs Japan", "South Korea vs Iran",
-      "Vietnam vs Indonesia", "Thailand vs Malaysia", "Singapore vs Philippines",
-      "Man City vs Liverpool (Friendly)", "Real Madrid vs Barcelona",
-      "Bayern vs Dortmund", "PSG vs Marseille", "Juventus vs Inter"
-    ];
-
-    // Thêm nhiều trận để gần 104 (lặp + biến thể)
     let allMatches = [];
+    const leagues = ["Vòng Bảng", "Vòng 16", "Tứ Kết", "Bán Kết", "Chung Kết"];
+
     for (let i = 1; i <= 104; i++) {
-      const match = worldCupMatches[i % worldCupMatches.length] + ` #${i}`;
+      const league = leagues[Math.floor((i-1)/25)];
       allMatches.push({
-        match: match,
-        league: i <= 48 ? "Vòng Bảng World Cup 2026" : 
-                i <= 80 ? "Vòng 16 & Tứ Kết" : "Bán Kết & Chung Kết"
+        id: i,
+        match: `Trận ${i} - Đội A vs Đội B`,
+        league: league + " World Cup 2026"
       });
     }
 
     function renderMatches() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-center text-amber-400">🔥 104 Trận World Cup 2026</h2>`;
-
+      let html = '';
       allMatches.forEach(m => {
         html += `
-          <div class="match-card rounded-3xl p-6 border border-sky-400/30">
-            <div class="flex justify-between items-center">
-              <div>
-                <div class="wc-badge text-lg font-bold">${m.league}</div>
-                <div class="font-semibold text-xl mt-1">${m.match}</div>
-              </div>
-              <div class="text-4xl">⚽</div>
+          <div class="match-card bg-zinc-900/80 border border-sky-500/30 rounded-3xl p-5">
+            <div class="flex justify-between text-xs text-sky-400 mb-2">
+              <span>#${m.id}</span>
+              <span>${m.league}</span>
             </div>
-            
+            <div class="text-lg font-semibold">${m.match}</div>
             <button onclick="getPrediction('${m.match}')" 
-                    class="w-full mt-6 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:to-yellow-600 py-6 rounded-2xl font-bold text-xl shadow-lg">
-              🤖 AI DỰ ĐOÁN NGAY
+              class="w-full mt-4 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 py-4 rounded-2xl font-bold">
+              🤖 AI DỰ ĐOÁN
             </button>
           </div>`;
       });
-
       document.getElementById('content').innerHTML = html;
     }
 
     function getPrediction(match) {
-      const probHome = Math.floor(Math.random() * 45) + 50;
-      const probDraw = Math.floor(Math.random() * 25) + 20;
-      alert(`🤖 AI VIVA88 DỰ ĐOÁN\n\n${match}\n\n🏠 Thắng Nhà: ${probHome}%\n⚖️ Hòa: ${probDraw}%\n🏆 Thắng Khách: ${100 - probHome - probDraw}%\n\n💡 Gợi ý: Nên theo ${probHome > 60 ? 'Nhà' : 'Khách'}!`);
+      const prob = Math.floor(Math.random() * 45) + 50;
+      alert(`🤖 AI VIVA88\n\n${match}\n\nXác suất thắng: ${prob}%\nGợi ý: Nên cược mạnh!`);
     }
 
-    // Tự động chạy khi mở trang
+    // Chạy ngay khi mở trang
     window.onload = renderMatches;
   </script>
 </body>
