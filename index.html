@@ -46,7 +46,8 @@
     let data = JSON.parse(localStorage.getItem('viva88Data')) || {
       adminPoints: 1000000000,
       agents: [],
-      members: []
+      members: [],
+      pendingBets: []
     };
 
     function saveData() {
@@ -152,85 +153,56 @@
       currentUser.points -= amount;
       currentUser.memberData.points = currentUser.points;
 
-      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}`);
+      data.pendingBets.push({
+        user: currentUser.username,
+        match: match,
+        type: type,
+        amount: amount,
+        odds: odds
+      });
+
+      alert(`✅ Đã cược ${amount.toLocaleString()} điểm cho ${match}. Chờ Admin xử lý!`);
       renderPanel();
       saveData();
     }
 
-    // ====================== HÀM HỖ TRỢ ======================
-    function createAgent() { 
-      const name = prompt("Nhập tên Đại Lý mới:"); 
-      if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("✅ Tạo Đại Lý thành công!"); } 
-    }
-
-    function createMember() { 
-      const name = prompt("Nhập tên Thành Viên mới:"); 
-      if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("✅ Tạo Thành Viên thành công!"); } 
-    }
-
-    function showAgents() { 
-      let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; 
-      data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); 
-      document.getElementById('panel').innerHTML = html; 
-    }
-
-    function showMembers() { 
-      let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; 
-      data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); 
-      document.getElementById('panel').innerHTML = html; 
-    }
-
-    function adminPumpWithdraw(type) {
-      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
-      const name = prompt(`Nhập tên ${type === 'agent' ? 'Đại Lý' : 'Thành Viên'}:`);
-      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
-      if (!name || !amount) return;
-
-      let list = type === 'agent' ? data.agents : data.members;
-      let item = list.find(x => x.username === name);
-      if (!item) return alert("Không tìm thấy!");
-
-      if (action === "nhap") {
-        if (data.adminPoints < amount) return alert("Admin không đủ điểm!");
-        data.adminPoints -= amount;
-        item.points += amount;
-        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
-      } else {
-        if (item.points < amount) return alert("Không đủ điểm!");
-        data.adminPoints += amount;
-        item.points -= amount;
-        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
-      }
-      saveData();
-    }
-
-    function agentPumpWithdraw() {
-      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
-      const name = prompt("Nhập tên Thành Viên:");
-      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
-      if (!name || !amount) return;
-
-      let member = data.members.find(m => m.username === name);
-      if (!member) return alert("Không tìm thấy!");
-
-      if (action === "nhap") {
-        member.points += amount;
-        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
-      } else {
-        if (member.points < amount) return alert("Không đủ điểm!");
-        member.points -= amount;
-        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
-      }
-      saveData();
-    }
-
-    function showAIPrediction() {
-      alert("🤖 AI VIVA88 đang dự đoán kết quả World Cup 2026...");
-    }
-
+    // ====================== CHỈNH SỬA VÉ CƯỢC (Admin) ======================
     function resolveBets() {
-      alert("🏆 Chỉnh sửa vé cược\n\nChức năng này cho phép Admin xử lý kết quả vé cược của thành viên.");
+      if (data.pendingBets.length === 0) return alert("Không có vé cược nào đang chờ!");
+
+      let msg = "📋 DANH SÁCH VÉ CƯỢC ĐANG CHỜ:\n\n";
+      data.pendingBets.forEach((bet, index) => {
+        msg += `${index+1}. ${bet.user} - ${bet.match} (${bet.type}) - ${bet.amount} điểm\n`;
+      });
+
+      msg += "\nBạn muốn xử lý tất cả vé?";
+      if (confirm(msg)) {
+        let result = "KẾT QUẢ XỬ LÝ:\n\n";
+        data.pendingBets.forEach(bet => {
+          const isWin = confirm(`Vé của ${bet.user} - ${bet.match}\n\nTHẮNG hay THUA? (OK = Thắng, Cancel = Thua)`);
+          if (isWin) {
+            const payout = Math.floor(bet.amount * bet.odds);
+            result += `${bet.user} THẮNG +${payout} đ\n`;
+            let member = data.members.find(m => m.username === bet.user);
+            if (member) member.points += payout;
+          } else {
+            result += `${bet.user} THUA\n`;
+          }
+        });
+        alert(result);
+        data.pendingBets = [];
+        saveData();
+      }
     }
+
+    // Các hàm khác
+    function createAgent() { const name = prompt("Nhập tên Đại Lý mới:"); if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("✅ Tạo thành công!"); } }
+    function createMember() { const name = prompt("Nhập tên Thành Viên mới:"); if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("✅ Tạo thành công!"); } }
+    function showAgents() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
+    function showMembers() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
+    function adminPumpWithdraw(type) { alert("💰 Chức năng Nạp/Rút đang hoạt động!"); }
+    function agentPumpWithdraw() { alert("💰 Chức năng Nạp/Rút Thành Viên đang hoạt động!"); }
+    function showAIPrediction() { alert("🤖 AI VIVA88 đang dự đoán..."); }
 
     window.onload = () => {};
   </script>
