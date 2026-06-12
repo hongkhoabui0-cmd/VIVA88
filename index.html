@@ -84,7 +84,7 @@
         html = adminPanel();
       } else if (currentUser.role === 'agent') {
         document.getElementById('title').innerHTML = `👔 Đại Lý`;
-        html = agentPanel();
+        html = `<div class="card p-6 rounded-3xl text-center">Đại Lý Panel</div>`;
       } else {
         document.getElementById('title').innerHTML = `⚽ Thành Viên`;
         html = memberPanel();
@@ -95,27 +95,12 @@
     function adminPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createAgent()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Đại Lý</button>
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
-          <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Đại Lý</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
-          <button onclick="adminPumpWithdraw('agent')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Đại Lý</button>
-          <button onclick="adminPumpWithdraw('member')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
-          <button onclick="resolveBets()" class="w-full py-4 bg-orange-600 rounded-2xl">🏆 Chỉnh Sửa Vé Cược</button>
-        </div>`;
-    }
-
-    function agentPanel() {
-      return `
-        <div class="card p-6 rounded-3xl space-y-4">
-          <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên</button>
-          <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">Danh sách Thành Viên</button>
-          <button onclick="agentPumpWithdraw()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
+          <button onclick="resolveBets()" class="w-full py-5 bg-orange-600 rounded-2xl text-xl font-bold">🏆 Chỉnh Sửa Vé Cược</button>
         </div>`;
     }
 
     function memberPanel() {
-      let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
+      let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026</h2>`;
       const teams = ["Brazil","Argentina","France","England","Spain","Germany"];
       for (let i = 1; i <= 104; i++) {
         const t1 = teams[(i-1)%teams.length];
@@ -152,7 +137,6 @@
       saveData();
     }
 
-    // Chỉnh sửa vé cược
     function resolveBets() {
       if (data.pendingBets.length === 0) return alert("Không có vé cược nào đang chờ!");
 
@@ -179,55 +163,6 @@
         saveData();
       }
     }
-
-    function adminPumpWithdraw(type) {
-      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
-      const name = prompt(`Nhập tên ${type === 'agent' ? 'Đại Lý' : 'Thành Viên'}:`);
-      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
-      if (!name || !amount) return;
-
-      let list = type === 'agent' ? data.agents : data.members;
-      let item = list.find(x => x.username === name);
-      if (!item) return alert("Không tìm thấy!");
-
-      if (action === "nhap") {
-        if (data.adminPoints < amount) return alert("Admin không đủ!");
-        data.adminPoints -= amount;
-        item.points += amount;
-        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
-      } else {
-        if (item.points < amount) return alert("Không đủ điểm!");
-        data.adminPoints += amount;
-        item.points -= amount;
-        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
-      }
-      saveData();
-    }
-
-    function agentPumpWithdraw() {
-      const action = prompt("Nạp hay Rút? (nhap/rut)", "nhap");
-      const name = prompt("Nhập tên Thành Viên:");
-      const amount = parseInt(prompt("Nhập số điểm:", "10000"));
-      if (!name || !amount) return;
-
-      let member = data.members.find(m => m.username === name);
-      if (!member) return alert("Không tìm thấy!");
-
-      if (action === "nhap") {
-        member.points += amount;
-        alert(`✅ NẠP ${amount.toLocaleString()} cho ${name}`);
-      } else {
-        if (member.points < amount) return alert("Không đủ điểm!");
-        member.points -= amount;
-        alert(`✅ RÚT ${amount.toLocaleString()} từ ${name}`);
-      }
-      saveData();
-    }
-
-    function createAgent() { const name = prompt("Tên Đại Lý mới:"); if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("Tạo thành công!"); } }
-    function createMember() { const name = prompt("Tên Thành Viên mới:"); if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("Tạo thành công!"); } }
-    function showAgents() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
-    function showMembers() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
 
     window.onload = () => {};
   </script>
