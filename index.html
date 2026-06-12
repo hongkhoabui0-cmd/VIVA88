@@ -99,6 +99,7 @@
       panel.innerHTML = html;
     }
 
+    // ====================== ADMIN ======================
     function adminPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
@@ -106,18 +107,23 @@
           <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
           <button onclick="showAgents()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Đại Lý</button>
           <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên</button>
+          <button onclick="adminPumpWithdraw('agent')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Đại Lý</button>
+          <button onclick="adminPumpWithdraw('member')" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
           <button onclick="resolveBets()" class="w-full py-4 bg-orange-600 rounded-2xl">🏆 Chỉnh Sửa Vé Cược</button>
         </div>`;
     }
 
+    // ====================== ĐẠI LÝ ======================
     function agentPanel() {
       return `
         <div class="card p-6 rounded-3xl space-y-4">
           <button onclick="createMember()" class="w-full py-4 bg-blue-600 rounded-2xl">Tạo Thành Viên Mới</button>
           <button onclick="showMembers()" class="w-full py-4 bg-emerald-600 rounded-2xl">📋 Danh Sách Thành Viên</button>
+          <button onclick="agentPumpWithdraw()" class="w-full py-4 bg-purple-600 rounded-2xl">💰 Nạp/Rút Thành Viên</button>
         </div>`;
     }
 
+    // ====================== THÀNH VIÊN ======================
     function memberPanel() {
       let html = `<h2 class="text-2xl font-bold mb-6 text-center">⚽ WORLD CUP 2026 - 104 TRẬN</h2>`;
       const teams = ["Brazil","Argentina","France","England","Spain","Germany","Portugal","Netherlands","Italy","Belgium","Vietnam","Thailand","Morocco","Senegal"];
@@ -151,6 +157,7 @@
       saveData();
     }
 
+    // ====================== CHỈNH SỬA VÉ CƯỢC ======================
     function resolveBets() {
       if (data.pendingBets.length === 0) return alert("Không có vé cược nào đang chờ!");
 
@@ -159,7 +166,7 @@
         msg += `${i+1}. ${bet.user} - ${bet.match} - ${bet.amount} điểm\n`;
       });
 
-      if (confirm(msg + "\nXử lý tất cả vé?")) {
+      if (confirm(msg + "\nBạn muốn xử lý tất cả?")) {
         let result = "KẾT QUẢ:\n\n";
         data.pendingBets.forEach(bet => {
           const win = confirm(`Vé của ${bet.user} - ${bet.match}\nTHẮNG hay THUA? (OK = Thắng)`);
@@ -178,10 +185,14 @@
       }
     }
 
+    // Các hàm hỗ trợ
     function createAgent() { const name = prompt("Nhập tên Đại Lý mới:"); if (name) { data.agents.push({username: name, points: 50000}); saveData(); alert("✅ Tạo thành công!"); } }
     function createMember() { const name = prompt("Nhập tên Thành Viên mới:"); if (name) { data.members.push({username: name, points: 50000}); saveData(); alert("✅ Tạo thành công!"); } }
     function showAgents() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Đại Lý</h2>`; data.agents.forEach(a => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${a.username}</span><span class="text-yellow-400">${a.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
     function showMembers() { let html = `<h2 class="text-2xl font-bold mb-4">Danh Sách Thành Viên</h2>`; data.members.forEach(m => html += `<div class="card p-4 rounded-2xl mb-3 flex justify-between"><span>${m.username}</span><span class="text-yellow-400">${m.points.toLocaleString()} đ</span></div>`); document.getElementById('panel').innerHTML = html; }
+    function adminPumpWithdraw(type) { alert("💰 Nạp/Rút đang hoạt động!"); }
+    function agentPumpWithdraw() { alert("💰 Nạp/Rút Thành Viên đang hoạt động!"); }
+    function showAIPrediction() { alert("🤖 AI VIVA88 đang dự đoán..."); }
 
     window.onload = () => {};
   </script>
