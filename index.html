@@ -6,23 +6,21 @@
   <title>VIVA88</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { 
-      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), 
-                  url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; 
-    }
-    .card { background: rgba(15, 23, 42, 0.95); border: 1px solid #334155; }
+    body { background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.95)), url('https://picsum.photos/id/1015/1920/1080') center/cover fixed; }
+    .card { background: rgba(15, 23, 42, 0.95); }
   </style>
 </head>
 <body class="text-white min-h-screen">
   <div class="max-w-md mx-auto p-4" id="app">
 
-    <div id="loginScreen" class="space-y-6">
-      <div class="text-center py-10">
+    <!-- Login -->
+    <div id="loginScreen">
+      <div class="text-center py-12">
         <h1 class="text-6xl font-black text-red-500">VIVA88</h1>
-        <p class="text-sky-400 text-xl mt-2">Cá Cược Điểm Ảo - API Thật</p>
+        <p class="text-sky-400 text-2xl">Cá Cược Điểm Ảo</p>
       </div>
-      <input id="username" placeholder="Tên đăng nhập" class="w-full p-5 rounded-3xl bg-zinc-900 text-lg">
-      <select id="role" class="w-full p-5 rounded-3xl bg-zinc-900 text-lg">
+      <input id="username" placeholder="Tên đăng nhập" class="w-full p-5 rounded-3xl bg-zinc-900 mb-4 text-lg">
+      <select id="role" class="w-full p-5 rounded-3xl bg-zinc-900 mb-6 text-lg">
         <option value="member">Thành Viên</option>
         <option value="agent">Đại Lý</option>
         <option value="admin">Admin - Khoa</option>
@@ -30,38 +28,35 @@
       <button onclick="login()" class="w-full py-6 bg-red-600 rounded-3xl text-xl font-bold">ĐĂNG NHẬP</button>
     </div>
 
+    <!-- Main -->
     <div id="mainScreen" class="hidden">
       <div class="flex justify-between items-center mb-6 bg-zinc-900 p-4 rounded-3xl">
         <h1 id="title" class="text-3xl font-bold"></h1>
-        <button onclick="logout()" class="px-5 py-2 bg-zinc-700 rounded-2xl text-sm">Đăng xuất</button>
+        <button onclick="logout()" class="px-6 py-3 bg-zinc-700 rounded-2xl">Đăng xuất</button>
       </div>
-      <div id="panel" class="space-y-6"></div>
+      <div id="panel"></div>
     </div>
   </div>
 
   <script>
-    const API_KEY = "9fb24f52024e8386a86543601550d805";
-
     let currentUser = null;
-    let data = JSON.parse(localStorage.getItem('viva88Data')) || {
-      adminPoints: 1000000000,
-      agents: [],
-      members: [],
-      history: []
-    };
+    let data = JSON.parse(localStorage.getItem('viva88Data')) || { members: [] };
 
     function saveData() { localStorage.setItem('viva88Data', JSON.stringify(data)); }
 
-    async function login() {
+    function login() {
       const username = document.getElementById('username').value.trim();
       if (!username) return alert("Nhập tên đăng nhập!");
-      const role = document.getElementById('role').value;
 
+      const role = document.getElementById('role').value;
       currentUser = { username, role };
 
       if (role === 'member') {
         let m = data.members.find(x => x.username === username);
-        if (!m) { m = {username, points: 50000}; data.members.push(m); }
+        if (!m) {
+          m = {username, points: 50000};
+          data.members.push(m);
+        }
         currentUser.points = m.points;
         currentUser.memberData = m;
       }
@@ -71,79 +66,66 @@
       renderPanel();
     }
 
-    function logout() { /* ... */ location.reload(); }
+    function logout() { location.reload(); }
 
     function renderPanel() {
-      // ... (giữ logic cũ)
-      document.getElementById('panel').innerHTML = currentUser.role === 'member' ? memberPanel() : `<div class="card p-8 text-center">Panel ${currentUser.role}</div>`;
+      const panel = document.getElementById('panel');
+      const title = document.getElementById('title');
+
+      if (currentUser.role === 'member') {
+        title.textContent = '⚽ THÀNH VIÊN';
+        panel.innerHTML = memberPanel();
+      } else {
+        title.textContent = currentUser.role === 'admin' ? '👑 ADMIN KHOA' : '👔 ĐẠI LÝ';
+        panel.innerHTML = `<div class="card p-10 text-center text-xl rounded-3xl">Panel ${currentUser.role} đang hoàn thiện</div>`;
+      }
     }
 
-    async function memberPanel() {
-      let html = `<div class="text-center mb-8"><div class="text-3xl font-bold text-yellow-400">Điểm: ${currentUser.points.toLocaleString()} đ</div></div>`;
-      
-      try {
-        const res = await fetch('https://api.football-data.org/v4/matches?status=FINISHED', {
-          headers: { 'X-Auth-Token': API_KEY }
-        });
-        const json = await res.json();
-        const matches = json.matches || [];
+    function memberPanel() {
+      let html = `
+        <div class="card p-6 rounded-3xl text-center mb-8">
+          <div class="text-4xl mb-4">⚽</div>
+          <div class="text-3xl font-bold text-yellow-400">Điểm: ${currentUser.points.toLocaleString()} đ</div>
+        </div>`;
 
-        matches.slice(0, 20).forEach(m => {  // Lấy 20 trận gần nhất
-          const h = m.homeTeam.name || 'Home';
-          const a = m.awayTeam.name || 'Away';
-          const homeScore = m.score.fullTime.home;
-          const awayScore = m.score.fullTime.away;
-          
-          html += `
-            <div class="card p-5 rounded-3xl mb-6">
-              <div class="font-bold mb-3">${h} ${homeScore} - ${awayScore} ${a}</div>
-              <div class="grid grid-cols-3 gap-3">
-                <button onclick="placeBet(${m.id}, '${h}', '${a}', 'home', 1.85)" class="py-4 bg-green-600 rounded-2xl text-sm">Nhà 1.85</button>
-                <button onclick="placeBet(${m.id}, '${h}', '${a}', 'draw', 3.4)" class="py-4 bg-yellow-600 rounded-2xl text-sm">Hòa 3.40</button>
-                <button onclick="placeBet(${m.id}, '${h}', '${a}', 'away', 2.1)" class="py-4 bg-red-600 rounded-2xl text-sm">Khách 2.10</button>
-              </div>
-            </div>`;
-        });
-      } catch(e) {
-        html += `<div class="card p-8 text-center">Không tải được dữ liệu trận đấu. Dùng mode random tạm thời.</div>`;
-      }
+      // Danh sách trận đơn giản (demo)
+      html += `<h2 class="text-xl font-bold mb-4 text-center">📋 Danh sách trận đấu</h2>`;
+      const matches = [
+        ["Brazil vs Argentina", "1.85", "3.4", "2.1"],
+        ["France vs England", "2.1", "3.3", "1.9"],
+        ["Germany vs Spain", "2.0", "3.5", "2.0"]
+      ];
+
+      matches.forEach(([match, o1, o2, o3], i) => {
+        html += `
+          <div class="card p-5 rounded-3xl mb-5">
+            <div class="font-bold mb-4">${match}</div>
+            <div class="grid grid-cols-3 gap-3">
+              <button onclick="placeBet('${match}', 'Nhà', ${o1})" class="py-4 bg-green-600 rounded-2xl text-sm font-bold">Nhà ${o1}</button>
+              <button onclick="placeBet('${match}', 'Hòa', ${o2})" class="py-4 bg-yellow-600 rounded-2xl text-sm font-bold">Hòa ${o2}</button>
+              <button onclick="placeBet('${match}', 'Khách', ${o3})" class="py-4 bg-red-600 rounded-2xl text-sm font-bold">Khách ${o3}</button>
+            </div>
+          </div>`;
+      });
+
       return html;
     }
 
-    async function placeBet(matchId, home, away, type, odds) {
-      const amount = parseInt(prompt(`Đặt cược ${home} vs ${away}\nKèo: ${type}\nTỉ lệ: ${odds}`, "10000"));
-      if (!amount || amount > currentUser.points) return alert("Sai hoặc không đủ điểm!");
+    function placeBet(match, type, odds) {
+      const amount = parseInt(prompt(`Đặt cược ${match}\nKèo: ${type}\nTỉ lệ: ${odds}`, "10000"));
+      if (!amount || amount > currentUser.points) return alert("Không đủ điểm!");
 
       currentUser.points -= amount;
       currentUser.memberData.points = currentUser.points;
 
-      // Kiểm tra kết quả thật
-      try {
-        const res = await fetch(`https://api.football-data.org/v4/matches/${matchId}`, {
-          headers: { 'X-Auth-Token': API_KEY }
-        });
-        const m = await res.json();
-
-        if (m.status === "FINISHED") {
-          const homeScore = m.score.fullTime.home;
-          const awayScore = m.score.fullTime.away;
-          let isWin = (type === "home" && homeScore > awayScore) || 
-                      (type === "draw" && homeScore === awayScore) || 
-                      (type === "away" && awayScore > homeScore);
-
-          if (isWin) {
-            const winAmount = Math.floor(amount * odds);
-            currentUser.points += winAmount;
-            currentUser.memberData.points = currentUser.points;
-            alert(`🎉 THẮNG! +${winAmount.toLocaleString()} điểm`);
-          } else {
-            alert(`❌ THUA. Mất ${amount.toLocaleString()} điểm`);
-          }
-        } else {
-          alert("⏳ Trận chưa kết thúc. Điểm đã trừ, chờ kết quả thật.");
-        }
-      } catch(e) {
-        alert("Không kiểm tra được kết quả thật. Điểm đã trừ.");
+      const isWin = Math.random() > 0.5;
+      if (isWin) {
+        const win = Math.floor(amount * odds);
+        currentUser.points += win;
+        currentUser.memberData.points = currentUser.points;
+        alert(`🎉 THẮNG! +${win.toLocaleString()} điểm`);
+      } else {
+        alert(`❌ THUA - Mất ${amount.toLocaleString()} điểm`);
       }
 
       renderPanel();
